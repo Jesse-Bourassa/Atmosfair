@@ -7,6 +7,7 @@ import './App.css';
 import Navbar from "./components/Navbar";
 import Home from './pages/Home';
 import About from './pages/About';
+import Services from './pages/Service';
 
 // Create a custom MUI theme
 const theme = createTheme({
@@ -66,6 +67,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
+          <Route path="/service" element={<Services />} />
         </Routes>
       </Router>
     </ThemeProvider>
