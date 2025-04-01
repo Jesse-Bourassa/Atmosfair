@@ -8,6 +8,7 @@ import Navbar from "./components/Navbar";
 import Home from './pages/Home';
 import About from './pages/About';
 import Services from './pages/Service';
+import Installation from './pages/Services/Installation';
 
 // Create a custom MUI theme
 const theme = createTheme({
@@ -68,6 +69,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/service" element={<Services />} />
+          <Route path="/installation" element={<Installation/>} />
         </Routes>
       </Router>
     </ThemeProvider>
