@@ -9,6 +9,11 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Services from './pages/Service';
 import Installation from './pages/Services/Installation';
+import Signup from './pages/Auth/SignUp';
+import Login from './pages/Auth/LoginPage';
+
+
+
 
 // Create a custom MUI theme
 const theme = createTheme({
@@ -70,6 +75,8 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/service" element={<Services />} />
           <Route path="/installation" element={<Installation/>} />
+          <Route path='/signup' element={<Signup/>}/>
+          <Route path='/login' element={<Login/>}/>
         </Routes>
       </Router>
     </ThemeProvider>
