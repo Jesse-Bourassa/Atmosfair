@@ -1,7 +1,14 @@
 // src/pages/Auth/LoginPage.jsx
 
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Paper } from '@mui/material';
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Paper
+} from '@mui/material';
+import { Link } from 'react-router-dom';
 
 const LoginPage = () => {
   const [form, setForm] = useState({
@@ -26,7 +33,7 @@ const LoginPage = () => {
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        backgroundColor: '#121212',
+        backgroundColor: '#1e1e1e',
       }}
     >
       <Paper
@@ -65,9 +72,38 @@ const LoginPage = () => {
             required
           />
 
-          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2 }}
+          >
             Log In
           </Button>
+
+          {/* Link to Sign Up */}
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{ mt: 2, color: 'gray' }}
+          >
+            Don’t have an account?{' '}
+            <Box
+              component={Link}
+              to="/signup"
+              sx={{
+                color: 'white',
+                fontWeight: 'bold',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                '&:hover': { color: '#90caf9' },
+                display: 'inline',
+              }}
+            >
+              Sign up here
+            </Box>
+          </Typography>
         </form>
       </Paper>
     </Box>

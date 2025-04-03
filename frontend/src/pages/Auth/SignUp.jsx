@@ -28,7 +28,7 @@ const SignUp = () => {
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        backgroundColor: '#121212',
+        backgroundColor: '#1e1e1e',
       }}
     >
       <Paper
