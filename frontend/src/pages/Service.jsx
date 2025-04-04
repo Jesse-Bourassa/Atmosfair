@@ -41,12 +41,12 @@ const Services = () => {
               }}
             >
               <Typography variant="h4" sx={{ fontWeight: "bold", color: theme.palette.secondary.main }}>
-                Reparation
+              Repair 
               </Typography>
               <Typography variant="body1" sx={{ my: 2, color: "black" }}>
                 Expert repairs to keep your HVAC system running smoothly.
               </Typography>
-              <Button variant="contained" color="primary" component={Link} to="/reparation" sx={{ mt: 2 }}>
+              <Button variant="contained" color="primary" component={Link} to="/repairs" sx={{ mt: 2 }}>
                 Learn More
               </Button>
             </Box>
@@ -64,7 +64,7 @@ const Services = () => {
               }}
             >
               <Typography variant="h4" sx={{ fontWeight: "bold", color: theme.palette.secondary.main }}>
-                Maintenance
+              Maintenance
               </Typography>
               <Typography variant="body1" sx={{ my: 2, color: "black" }}>
                 Regular servicing to ensure top performance of your HVAC.
@@ -87,7 +87,7 @@ const Services = () => {
               }}
             >
               <Typography variant="h4" sx={{ fontWeight: "bold", color: theme.palette.secondary.main }}>
-                Installation
+              Installation
               </Typography>
               <Typography variant="body1" sx={{ my: 2, color: "black" }}>
                 Professional HVAC system installation for your space.

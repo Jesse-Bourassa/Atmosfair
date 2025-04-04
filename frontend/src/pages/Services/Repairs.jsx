@@ -24,18 +24,18 @@ const Maintenance = () => {
       <Paper elevation={6} sx={{ p: 4, width: '100%', maxWidth: 800, backgroundColor: '#1e1e1e', color: 'white' }}>
         <Grid container justifyContent="center">
           <Typography variant="h4" gutterBottom align="center" sx={{ color: '#90caf9', mb: 2 }}>
-            HVAC Maintenance
+            HVAC Repairs
           </Typography>
         </Grid>
 
         <Typography variant="body1" paragraph align="center">
-          Choose your maintenance needs and schedule a convenient time for our team to service your HVAC system.
+          Choose your Repairs needs and schedule a convenient time for our team to service your HVAC system.
         </Typography>
 
         <form>
           <TextField
             select
-            label="Maintenance Type"
+            label="Repair Type"
             fullWidth
             margin="normal"
             SelectProps={{ native: true }}
@@ -102,7 +102,7 @@ const Maintenance = () => {
 
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
             <Button type="submit" variant="contained" sx={{ px: 4, py: 1.5 }}>
-              Schedule Maintenance
+              Schedule Repair
             </Button>
           </Box>
         </form>

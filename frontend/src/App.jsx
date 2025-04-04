@@ -11,6 +11,11 @@ import Services from './pages/Service';
 import Installation from './pages/Services/Installation';
 import Signup from './pages/Auth/SignUp';
 import Login from './pages/Auth/LoginPage';
+import ForgotPassword from './pages/Auth/ForgotPasswordPage';
+import Maintenance from './pages/Services/Maintenance';
+import Repairs from './pages/Services/Repairs';
+import Profile from './pages/Profile';
+import { AuthProvider } from "./context/AuthContext"; // 👈 Import
 
 
 
@@ -68,6 +73,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}> {/* Wrap your app with the ThemeProvider */}
+    <AuthProvider> {/* Wrap your app with the AuthProvider */}
       <Router>
       <Navbar />
         <Routes>
@@ -77,8 +83,13 @@ function App() {
           <Route path="/installation" element={<Installation/>} />
           <Route path='/signup' element={<Signup/>}/>
           <Route path='/login' element={<Login/>}/>
+          <Route path='/forgot-password' element={<ForgotPassword/>}/>
+          <Route path='/maintenance' element={<Maintenance/>}/>
+          <Route path='/repairs' element={<Repairs/>}/>
+          <Route path='/profile' element={<Profile/>}/>
         </Routes>
       </Router>
+      </AuthProvider> {/* Close the AuthProvider here */}
     </ThemeProvider>
   );
 }

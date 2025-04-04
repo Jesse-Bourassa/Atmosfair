@@ -8,7 +8,10 @@ import {
   Typography,
   Paper
 } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+
+
 
 const LoginPage = () => {
   const [form, setForm] = useState({
@@ -16,14 +19,41 @@ const LoginPage = () => {
     password: '',
   });
 
+  const { setUser } = useAuth();
+  
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Later: validate + call backend here
-    console.log('Login form submitted:', form);
+
+    try {
+      const res = await fetch('http://localhost:5001/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      localStorage.setItem('user', JSON.stringify(data.user)); // ✅ Add this
+      localStorage.setItem('token', data.token);   
+      setUser(data.user);
+      alert('Login successful!');
+      navigate('/'); // 👈 Redirect to home page
+    } catch (err) {
+      alert(err.message);
+      console.error('Login error:', err);
+    }
   };
 
   return (
@@ -42,7 +72,7 @@ const LoginPage = () => {
           padding: 4,
           width: '100%',
           maxWidth: 400,
-          backgroundColor: '#1e1e1e',
+          backgroundColor: '#2c2c2c',
           color: 'white',
         }}
       >
@@ -71,6 +101,24 @@ const LoginPage = () => {
             margin="normal"
             required
           />
+<Typography
+  variant="body2"
+  align="right"
+  sx={{
+    mt: 1,
+    color: 'gray',
+    '& a': {
+      color: '#90caf9',
+      textDecoration: 'none',
+      fontWeight: 'bold',
+      '&:hover': {
+        textDecoration: 'underline',
+      },
+    },
+  }}
+>
+  <Link to="/forgot-password">Forgot password?</Link>
+</Typography>
 
           <Button
             type="submit"

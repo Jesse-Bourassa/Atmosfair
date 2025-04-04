@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Typography, Button } from "@mui/material";
+import { Link } from "react-router-dom";
 
 export default function Hero() {
   return (
@@ -58,7 +59,7 @@ export default function Hero() {
         <Typography variant="h6" paragraph>
           Experience reliable, professional HVAC services tailored to your needs.
         </Typography>
-        <Button variant="contained" color="primary" size="large">
+        <Button variant="contained" color="primary" size="large" component={Link} to="/service">
           Explore Our Services
         </Button>
       </Box>

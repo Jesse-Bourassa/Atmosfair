@@ -4,8 +4,10 @@ services:
     ports:
       - "5001:5000"
     depends_on:
-      - db
+      - mongodb
     restart: always
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/atmosfair-db
 
   frontend:
     build: ./frontend
@@ -15,30 +17,14 @@ services:
       - backend
     restart: always
 
-  db:
-    image: postgres:latest
-    container_name: hvac-db
+  mongodb:
+    image: mongo
+    container_name: hvac-mongodb
     restart: always
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: secret
-      POSTGRES_DB: hvac_scheduler
     ports:
-      - "5432:5432"
+      - "27017:27017"
     volumes:
-      - pgdata:/var/lib/postgresql/data
-
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - "5050:80"
-    depends_on:
-      - db
+      - mongo-data:/data/db
 
 volumes:
-  pgdata:
+  mongo-data:

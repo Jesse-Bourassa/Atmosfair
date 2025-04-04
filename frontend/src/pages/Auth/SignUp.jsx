@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, Paper } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
+
 
 const SignUp = () => {
   const [form, setForm] = useState({
@@ -11,14 +13,47 @@ const SignUp = () => {
     confirmPassword: '',
   });
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Later: validate + call backend here
-    console.log('Sign Up form submitted:', form);
+  
+    if (form.password !== form.confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+  
+    try {
+      const res = await fetch('http://localhost:5001/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          password: form.password,
+          confirmPassword: form.confirmPassword, 
+        }),
+      });
+  
+      const data = await res.json();
+  
+      if (!res.ok) {
+        throw new Error(data.message || 'Something went wrong.');
+      }
+  
+      alert('Signup successful!');
+      // Optionally redirect user to login page:
+      navigate('/login');
+    } catch (err) {
+      alert(err.message);
+      console.error('Signup error:', err);
+    }
   };
 
   return (
@@ -37,7 +72,7 @@ const SignUp = () => {
           padding: 4,
           width: '100%',
           maxWidth: 400,
-          backgroundColor: '#1e1e1e',
+          backgroundColor: '#2c2c2c',
           color: 'white',
         }}
       >
@@ -89,8 +124,31 @@ const SignUp = () => {
           <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
             Sign Up
           </Button>
+           <Typography
+                       variant="body2"
+                       align="center"
+                       sx={{ mt: 2, color: 'gray' }}
+                     >
+                       Already have an account?{' '}
+                       <Box
+              component={Link}
+              to="/login"
+              sx={{
+                color: 'white',
+                fontWeight: 'bold',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                '&:hover': { color: '#90caf9' },
+                display: 'inline',
+              }}
+            >
+              Login here
+            </Box>
+                     </Typography>
         </form>
+        
       </Paper>
+      
     </Box>
   );
 };
