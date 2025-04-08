@@ -1,9 +1,13 @@
-// src/pages/Auth/SignUp.jsx
-
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Paper } from '@mui/material';
+import {
+  Box,
+  Button,
+  Grid,
+  TextField,
+  Typography,
+  Paper
+} from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-
 
 const SignUp = () => {
   const [form, setForm] = useState({
@@ -11,6 +15,9 @@ const SignUp = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    mainPhone: '',
+    telephone: '',
+    address: '',
   });
 
   const navigate = useNavigate();
@@ -21,34 +28,28 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (form.password !== form.confirmPassword) {
       alert("Passwords do not match.");
       return;
     }
-  
+
     try {
       const res = await fetch('http://localhost:5001/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          password: form.password,
-          confirmPassword: form.confirmPassword, 
-        }),
+        body: JSON.stringify(form),
       });
-  
+
       const data = await res.json();
-  
+
       if (!res.ok) {
         throw new Error(data.message || 'Something went wrong.');
       }
-  
+
       alert('Signup successful!');
-      // Optionally redirect user to login page:
       navigate('/login');
     } catch (err) {
       alert(err.message);
@@ -57,80 +58,148 @@ const SignUp = () => {
   };
 
   return (
+    
     <Box
       sx={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        height: '100vh',
+        minHeight: '100vh',
         backgroundColor: '#1e1e1e',
+        px: 2
       }}
     >
+      
+      <Box
+    sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+    }}
+  >
+    {/* 👇 Logo on top */}
+    <Box
+      component="img"
+      src="/Logo.png"
+      alt="Atmosfair Logo"
+      sx={{ 
+        width: 300, 
+        height: 'auto', 
+        mb: 3 }}
+    />
       <Paper
         elevation={6}
         sx={{
           padding: 4,
           width: '100%',
-          maxWidth: 400,
+          maxWidth: 650,
           backgroundColor: '#2c2c2c',
           color: 'white',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 2,
         }}
-      >
+      >  
         <Typography variant="h5" gutterBottom align="center">
           Create an Account
         </Typography>
 
         <form onSubmit={handleSubmit}>
-          <TextField
-            label="Name"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Email"
-            name="email"
-            type="email"
-            value={form.email}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Password"
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Confirm Password"
-            name="confirmPassword"
-            type="password"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-          />
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Name"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+            </Grid>
 
-          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Email"
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Main Phone Number"
+                name="mainPhone"
+                value={form.mainPhone}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Telephone Phone Number"
+                name="telephone"
+                value={form.telephone}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                label="Address"
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Password"
+                name="password"
+                type="password"
+                value={form.password}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Confirm Password"
+                name="confirmPassword"
+                type="password"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+            </Grid>
+          </Grid>
+
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 3 }}
+          >
             Sign Up
           </Button>
-           <Typography
-                       variant="body2"
-                       align="center"
-                       sx={{ mt: 2, color: 'gray' }}
-                     >
-                       Already have an account?{' '}
-                       <Box
+
+          <Typography variant="body2" align="center" sx={{ mt: 2, color: 'gray' }}>
+            Already have an account?{' '}
+            <Box
               component={Link}
               to="/login"
               sx={{
@@ -144,11 +213,10 @@ const SignUp = () => {
             >
               Login here
             </Box>
-                     </Typography>
+          </Typography>
         </form>
-        
       </Paper>
-      
+    </Box>
     </Box>
   );
 };
