@@ -5,9 +5,9 @@ const User = require("../models/User");
 const router = express.Router();
 
 router.post("/signup", async (req, res) => {
-  const { name, email, password, confirmPassword } = req.body;
+  const { name, email, password, confirmPassword, mainPhone, telephone, address, role } = req.body;
 
-  if (!name || !email || !password || !confirmPassword)
+  if (!name || !email || !password || !confirmPassword || !mainPhone || !telephone || !address)
     return res.status(400).json({ message: "All fields are required" });
 
   if (password !== confirmPassword)
@@ -20,7 +20,15 @@ router.post("/signup", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({ name, email, password: hashedPassword });
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      mainPhone,
+      telephone,
+      address,
+      role
+    });
     await newUser.save();
 
     res.status(201).json({ message: "User registered successfully" });
@@ -51,6 +59,10 @@ router.post("/login", async (req, res) => {
           id: user._id,
           name: user.name,
           email: user.email,
+          mainPhone: user.mainPhone,
+          telephone: user.telephone,
+          address: user.address,
+          role: user.role,
         },
       });
     } catch (err) {
@@ -59,6 +71,4 @@ router.post("/login", async (req, res) => {
     }
   });
   
-
-
 module.exports = router;
