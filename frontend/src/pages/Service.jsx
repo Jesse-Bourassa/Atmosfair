@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Container, Grid, Button, Card, CardContent } from "@mui/material";
+import { Box, Typography, Container, Grid, Button } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Link } from "react-router-dom";
 
@@ -9,12 +9,12 @@ const Services = () => {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        minHeight: "auto",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        py: 8,
+        py: 18,
         color: theme.palette.text.primary,
       }}
     >
@@ -40,6 +40,7 @@ const Services = () => {
                 "&:hover": { transform: "scale(1.05)", transition: "0.3s" },
               }}
             >
+              <img src="/Repair.jpeg" alt="Repair service" style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "20px" }} />
               <Typography variant="h4" sx={{ fontWeight: "bold", color: theme.palette.secondary.main }}>
               Repair 
               </Typography>
@@ -63,6 +64,7 @@ const Services = () => {
                 "&:hover": { transform: "scale(1.05)", transition: "0.3s" },
               }}
             >
+              <img src="/maintnace.jpeg" alt="Maintenance service" style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "20px" }} />
               <Typography variant="h4" sx={{ fontWeight: "bold", color: theme.palette.secondary.main }}>
               Maintenance
               </Typography>
@@ -86,6 +88,7 @@ const Services = () => {
                 "&:hover": { transform: "scale(1.05)", transition: "0.3s" },
               }}
             >
+              <img src="/install.jpeg" alt="Installation service" style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "20px" }} />
               <Typography variant="h4" sx={{ fontWeight: "bold", color: theme.palette.secondary.main }}>
               Installation
               </Typography>

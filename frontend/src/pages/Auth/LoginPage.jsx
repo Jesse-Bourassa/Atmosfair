@@ -1,5 +1,3 @@
-// src/pages/Auth/LoginPage.jsx
-
 import React, { useState } from 'react';
 import {
   Box,
@@ -60,12 +58,37 @@ const LoginPage = () => {
     <Box
       sx={{
         display: 'flex',
-        justifyContent: 'center',
+        flexDirection: 'column',
         alignItems: 'center',
-        height: '100vh',
+        minHeight: '100vh',
         backgroundColor: '#1e1e1e',
       }}
     >
+      <Box
+        sx={{
+          background: 'radial-gradient(circle at center, white 20%, #1e1e1e 70%)',
+          padding: 4,
+          borderRadius: '50%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          mt: 10,
+          mb: 4,
+          width: { xs: 200, sm: 240, md: 280 },
+          height: { xs: 200, sm: 240, md: 280 },
+        }}
+      >
+        <Box
+          component="img"
+          src="/Logo3.png"
+          alt="Atmosfair Logo"
+          sx={{
+            width: '130%',
+            height: 'auto',
+          }}
+        />
+      </Box>
+
       <Paper
         elevation={6}
         sx={{
@@ -101,24 +124,24 @@ const LoginPage = () => {
             margin="normal"
             required
           />
-<Typography
-  variant="body2"
-  align="right"
-  sx={{
-    mt: 1,
-    color: 'gray',
-    '& a': {
-      color: '#90caf9',
-      textDecoration: 'none',
-      fontWeight: 'bold',
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    },
-  }}
->
-  <Link to="/forgot-password">Forgot password?</Link>
-</Typography>
+          <Typography
+            variant="body2"
+            align="right"
+            sx={{
+              mt: 1,
+              color: 'gray',
+              '& a': {
+                color: '#90caf9',
+                textDecoration: 'none',
+                fontWeight: 'bold',
+                '&:hover': {
+                  textDecoration: 'underline',
+                },
+              },
+            }}
+          >
+            <Link to="/forgot-password">Forgot password?</Link>
+          </Typography>
 
           <Button
             type="submit"
@@ -130,7 +153,6 @@ const LoginPage = () => {
             Log In
           </Button>
 
-          {/* Link to Sign Up */}
           <Typography
             variant="body2"
             align="center"
