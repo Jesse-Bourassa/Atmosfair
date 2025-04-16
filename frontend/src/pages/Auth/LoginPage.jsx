@@ -47,6 +47,7 @@ const LoginPage = () => {
       localStorage.setItem('token', data.token);   
       setUser(data.user);
       alert('Login successful!');
+      console.log("LOGIN RESPONSE:", data);
       navigate('/'); // 👈 Redirect to home page
     } catch (err) {
       alert(err.message);

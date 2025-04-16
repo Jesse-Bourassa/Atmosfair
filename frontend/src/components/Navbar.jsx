@@ -62,7 +62,9 @@ const Navbar = () => {
           </Typography>
 
           <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2, justifyContent: "center", flex: 1 }}>
+
             {navLinks.map((item) => (
+              
               <Button
                 key={item.label}
                 component={Link}
@@ -83,6 +85,28 @@ const Navbar = () => {
                 {item.label}
               </Button>
             ))}
+            
+            {user?.role === "admin" && (
+  <Button
+    component={Link}
+    to="/admin/dashboard"
+    sx={{
+      color: theme.palette.text.primary,
+      textTransform: "none",
+      fontSize: "1rem",
+      fontWeight: 500,
+      px: 2.5,
+      py: 0.7,
+      borderRadius: 2,
+      "&:hover": {
+        backgroundColor: theme.palette.primary.light,
+      },
+    }}
+  >
+    Dashboard
+  </Button>
+)}
+
           </Box>
 
           <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2, flex: "0 0 auto" }}>

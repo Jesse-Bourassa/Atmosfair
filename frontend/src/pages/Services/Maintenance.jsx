@@ -51,9 +51,14 @@ const Maintenance = () => {
             required
           >
             <option value="">Select an option</option>
-            <option value="seasonal">Seasonal Tune-Up</option>
-            <option value="filter">Filter Replacement</option>
-            <option value="inspection">Full System Inspection</option>
+            <option value="central">Central Air Conditioning</option>
+            <option value="ductless">Ductless Mini-Split</option>
+            <option value="furnace">Furnace Installation</option>
+            <option value="heatpump">Heat Pump</option>
+            <option value="Refrigeration">Refrigeration</option>
+            <option value="Suspended Unit">Suspended Unit</option>
+            <option value="RoofTop">Roof Top</option>
+            <option value="NaturalGas">Natural Gas</option>
           </TextField>
 
           <Grid container spacing={3} sx={{ mt: 2 }}>

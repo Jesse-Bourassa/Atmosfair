@@ -15,6 +15,7 @@ import ForgotPassword from './pages/Auth/ForgotPasswordPage';
 import Maintenance from './pages/Services/Maintenance';
 import Repairs from './pages/Services/Repairs';
 import Profile from './pages/Profile';
+import Dashboard from './pages/Admin/Dashboard';
 import { AuthProvider } from "./context/AuthContext"; // 👈 Import
 
 
@@ -87,6 +88,7 @@ function App() {
           <Route path='/maintenance' element={<Maintenance/>}/>
           <Route path='/repairs' element={<Repairs/>}/>
           <Route path='/profile' element={<Profile/>}/>
+          <Route path='/Admin/Dashboard' element={<Dashboard/>}/>
         </Routes>
       </Router>
       </AuthProvider> {/* Close the AuthProvider here */}
