@@ -4,7 +4,8 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 
 const authRoutes = require("./routes/auth");
-
+const userRoutes = require("./routes/users"); 
+const scheduleRoutes = require("./routes/schedule");
 
 const app = express();
 app.use(express.json());
@@ -21,6 +22,8 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // API routes
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);            
+app.use("/api/schedule", scheduleRoutes);
 
 app.get("/", (req, res) => {
   res.send("HVAC Scheduling API is runnings");

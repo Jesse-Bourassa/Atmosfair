@@ -1,9 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Paper, CircularProgress } from '@mui/material';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+  Box,
+  Paper,
+  CircularProgress,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import Appointments from './Appointments'; // ✅ Import Appointments component
+import Customer from './Csutomer'; // ✅ Import Appointments component
+
 
 const Dashboard = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -15,7 +32,7 @@ const Dashboard = () => {
           },
         });
         const data = await res.json();
-        setCustomers(data);
+        setCustomers(data.map((c) => ({ ...c, visible: true })));
       } catch (err) {
         console.error("Failed to fetch customers", err);
       } finally {
@@ -27,31 +44,13 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <Box sx={{ padding: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Customer List
-      </Typography>
+    <Box sx={{ p: 4, marginTop: 8 }}>
+      {/* Appointments Section */}
+      <Appointments />
+      {/* Customers Section */}
 
-      {loading ? (
-        <CircularProgress />
-      ) : (
-        customers.map((user) => (
-          <Paper
-            key={user._id}
-            sx={{
-              padding: 2,
-              marginBottom: 2,
-              backgroundColor: "#f5f5f5",
-              borderRadius: 2,
-            }}
-          >
-            <Typography variant="h6">{user.name}</Typography>
-            <Typography>Email: {user.email}</Typography>
-            <Typography>Phone: {user.mainPhone}</Typography>
-            <Typography>Address: {user.address}</Typography>
-          </Paper>
-        ))
-      )}
+      <Customer />
+     
     </Box>
   );
 };

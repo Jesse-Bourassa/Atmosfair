@@ -8,11 +8,44 @@ import { useState } from 'react';
 const Installation = () => {
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [selectedTime, setSelectedTime] = useState(null);
+  const [installType, setInstallType] = useState("");
   const timeSlots = [
     "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
     "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM",
     "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
   ];
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!installType || !selectedDate || !selectedTime) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    const userId = localStorage.getItem("userId");
+    try {
+      const response = await fetch("http://localhost:5001/api/schedule", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          type: installType,
+          date: selectedDate.format("YYYY-MM-DD"),
+          time: selectedTime
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert("Appointment scheduled!");
+      } else {
+        alert(data.message || "Failed to schedule.");
+      }
+    } catch (err) {
+      console.error("Error scheduling:", err);
+      alert("Error scheduling appointment.");
+    }
+  };
 
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 14 }}>
@@ -27,7 +60,7 @@ const Installation = () => {
           Choose the type of installation and your preferred date. Our team will handle the rest.
         </Typography>
 
-        <form>
+        <form onSubmit={handleSubmit}>
           <TextField
             select
             label="Type of Installation"
@@ -44,6 +77,8 @@ const Installation = () => {
             }}
             InputLabelProps={{ shrink: true }}
             required
+            value={installType}
+            onChange={(e) => setInstallType(e.target.value)}
           >
             <option value="">Select an option</option>
             <option value="central">Central Air Conditioning</option>

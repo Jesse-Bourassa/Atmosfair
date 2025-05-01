@@ -44,7 +44,8 @@ const LoginPage = () => {
       }
 
       localStorage.setItem('user', JSON.stringify(data.user)); // ✅ Add this
-      localStorage.setItem('token', data.token);   
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userId', data.user.id);
       setUser(data.user);
       alert('Login successful!');
       console.log("LOGIN RESPONSE:", data);

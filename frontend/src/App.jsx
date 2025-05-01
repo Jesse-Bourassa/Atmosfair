@@ -17,6 +17,7 @@ import Repairs from './pages/Services/Repairs';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Admin/Dashboard';
 import { AuthProvider } from "./context/AuthContext"; // 👈 Import
+import CustomerDetails from './pages/Admin/CustomerDetails';
 
 
 
@@ -89,6 +90,7 @@ function App() {
           <Route path='/repairs' element={<Repairs/>}/>
           <Route path='/profile' element={<Profile/>}/>
           <Route path='/Admin/Dashboard' element={<Dashboard/>}/>
+          <Route path='/admin/customer/:id' element={<CustomerDetails />} />
         </Routes>
       </Router>
       </AuthProvider> {/* Close the AuthProvider here */}
