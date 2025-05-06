@@ -1,0 +1,134 @@
+/* ───────── Root canvas ───────── */
+body {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  background: #181a20;
+  color: #e6e8ef;
+}
+
+/* ───────── Glass card wrapper ───────── */
+.scheduler-card {
+  backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 8px 18px rgb(0 0 0 / 0.55);
+  padding: 6px;
+}
+
+/* ───────── Toolbar ───────── */
+.rbc-toolbar {
+  background: transparent;
+  padding: 4px 8px;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+.rbc-toolbar-label {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #e6e8ef;
+}
+.rbc-btn-group button {
+  background: rgba(13, 110, 253, 0.15);
+  color: #e6e8ef;
+  border: none;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  transition: background 0.15s;
+}
+.rbc-btn-group button:hover {
+  background: rgba(13, 110, 253, 0.3);
+}
+.rbc-btn-group .rbc-active {
+  background: #0d6efd;
+}
+
+/* ───────── Headers & grid ───────── */
+.rbc-time-header .rbc-header {
+  background: transparent;
+  color: #9cb7ff;
+  border-color: rgba(255, 255, 255, 0.08);
+  font-weight: 500;
+}
+.rbc-time-slot {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.rbc-time-slot:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
+.rbc-time-content > * + * {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ───────── Events ───────── */
+.rbc-event {
+  border-radius: 10px !important;
+  box-shadow: 0 3px 8px rgb(0 0 0 / 0.5);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  padding: 2px 6px;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: #fff;
+}
+
+/* ───────── Scrollbar ───────── */
+.rbc-time-content::-webkit-scrollbar {
+  width: 8px;
+}
+.rbc-time-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+}
+.rbc-today { background: rgba(13, 110, 253, 0.07) !important; }
+.rbc-btn-group .rbc-active {
+  background: #0d6efd !important;     /* same HVAC blue */
+  color: #e6e8ef !important;          /* light text */
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15);
+}
+/* reusable pill look */
+.rbc-pill {
+  background: rgba(13, 110, 253, 0.15);
+  color: #e6e8ef;
+  border: none;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.rbc-pill:hover {
+  background: rgba(13, 110, 253, 0.30);
+}
+
+/* apply to reset & icon buttons */
+.rbc-reset-btn   { @apply rbc-pill; }      /* if you’re using Tailwind */
+.rbc-nav-btn     { @apply rbc-pill; width: 32px; }
+
+/* (without Tailwind) duplicate rule: */
+.rbc-reset-btn,
+.rbc-nav-btn {
+  background: rgba(13, 110, 253, 0.15);
+  color: #e6e8ef;
+  border: none;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.rbc-reset-btn:hover,
+.rbc-nav-btn:hover {
+  background: rgba(13, 110, 253, 0.30);
+}
+/* narrow pills for arrows */
+.rbc-nav-btn { width: 52px; padding: 4px; }
+
