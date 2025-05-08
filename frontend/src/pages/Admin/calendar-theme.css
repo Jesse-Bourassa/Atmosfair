@@ -1,10 +1,4 @@
-/* ───────── Root canvas ───────── */
-body {
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  background: #181a20;
-  color: #e6e8ef;
-}
+
 
 /* ───────── Glass card wrapper ───────── */
 .scheduler-card {
@@ -130,5 +124,5 @@ body {
   background: rgba(13, 110, 253, 0.30);
 }
 /* narrow pills for arrows */
-.rbc-nav-btn { width: 52px; padding: 4px; }
+.rbc-nav-btn { width: 52px; padding: 4 px; }
 
