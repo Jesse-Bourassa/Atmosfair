@@ -43,20 +43,19 @@ export default function Hero() {
         sx={{
           position: "relative",
           zIndex: 1,
-          height: "100%",
+          height: "90%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "flex-end",
           color: "#fff",
-          textAlign: "center",
-          p: 2,
+          textAlign: "center"
         }}
       >
-        <Typography variant="h3" gutterBottom>
+        <Typography variant="h1" gutterBottom>
           Welcome to Atmosfair
         </Typography>
-        <Typography variant="h6" paragraph>
+        <Typography variant="h5" paragraph>
           Experience reliable, professional HVAC services tailored to your needs.
         </Typography>
         <Button variant="contained" color="primary" size="large" component={Link} to="/service">

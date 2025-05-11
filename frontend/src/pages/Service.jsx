@@ -1,109 +1,105 @@
 import React from "react";
-import { Box, Typography, Container, Grid, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Container,
+  Grid,
+  Button,
+  Card,
+  CardContent,
+  CardMedia,
+} from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Services = () => {
+  const { currentUser } = useAuth();     // null / undefined when logged‑out
+  const navigate = useNavigate();
   const theme = useTheme();
 
-  return (
-    <Box
-      sx={{
-        minHeight: "auto",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        py: 18,
-        color: theme.palette.text.primary,
-      }}
-    >
-      <Container maxWidth="lg" sx={{ textAlign: "center" }}>
-        <Typography variant="h3" sx={{ fontWeight: "bold", mb: 5, color: theme.palette.text.secondary }}>
-          Our Services
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 5, maxWidth: "800px", mx: "auto", color: "white" }}>
-          We provide top-notch HVAC services to keep your home and business comfortable year-round. Whether you need repairs, regular maintenance, or a full installation, we've got you covered.
-        </Typography>
-        
-        {/* Service Cards */}
-        <Grid container spacing={4} justifyContent="center">
-          <Grid item xs={12} sm={6} md={4}>
-            <Box
-              sx={{
-                padding: "30px",
-                backgroundColor: "white",
-                borderRadius: "15px",
-                boxShadow: "0 5px 15px rgba(0,0,0,0.5)",
-                textAlign: "center",
-                border: `2px solid ${theme.palette.primary.main}`,
-                "&:hover": { transform: "scale(1.05)", transition: "0.3s" },
-              }}
-            >
-              <img src="/Repair.jpeg" alt="Repair service" style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "20px" }} />
-              <Typography variant="h4" sx={{ fontWeight: "bold", color: theme.palette.secondary.main }}>
-              Repair 
-              </Typography>
-              <Typography variant="body1" sx={{ my: 2, color: "black" }}>
-                Expert repairs to keep your HVAC system running smoothly.
-              </Typography>
-              <Button variant="contained" color="primary" component={Link} to="/repairs" sx={{ mt: 2 }}>
-                Learn More
-              </Button>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <Box
-              sx={{
-                padding: "30px",
-                backgroundColor: "white",
-                borderRadius: "15px",
-                boxShadow: "0 5px 15px rgba(0,0,0,0.5)",
-                textAlign: "center",
-                border: `2px solid ${theme.palette.secondary.main}`,
-                "&:hover": { transform: "scale(1.05)", transition: "0.3s" },
-              }}
-            >
-              <img src="/maintnace.jpeg" alt="Maintenance service" style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "20px" }} />
-              <Typography variant="h4" sx={{ fontWeight: "bold", color: theme.palette.secondary.main }}>
-              Maintenance
-              </Typography>
-              <Typography variant="body1" sx={{ my: 2, color: "black" }}>
-                Regular servicing to ensure top performance of your HVAC.
-              </Typography>
-              <Button variant="contained" color="primary" component={Link} to="/maintenance" sx={{ mt: 2 }}>
-                Learn More
-              </Button>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <Box
-              sx={{
-                padding: "30px",
-                backgroundColor: "white",
-                borderRadius: "15px",
-                boxShadow: "0 5px 15px rgba(0,0,0,0.5)",
-                textAlign: "center",
-                border: `2px solid ${theme.palette.secondary.main}`,
-                "&:hover": { transform: "scale(1.05)", transition: "0.3s" },
-              }}
-            >
-              <img src="/install.jpeg" alt="Installation service" style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "20px" }} />
-              <Typography variant="h4" sx={{ fontWeight: "bold", color: theme.palette.secondary.main }}>
-              Installation
-              </Typography>
-              <Typography variant="body1" sx={{ my: 2, color: "black" }}>
-                Professional HVAC system installation for your space.
-              </Typography>
-              <Button variant="contained" color="primary" component={Link} to="/installation" sx={{ mt: 2 }}>
-                Learn More
-              </Button>
-            </Box>
-          </Grid>
-        </Grid>
+  /* decide where to go on click */
+  const handleServiceClick = (path) => () => {
+    if (currentUser) {
+      navigate(path);
+    } else {
+      // save the intended route so you can push them back after login (optional)
+      navigate("/login", { state: { from: path } });
+    }
+  };
 
-        {/* Call-To-Action Section */}
-        
+  return (
+    <Box sx={{ minHeight: "100vh", backgroundColor: "#1c1c1c", color: "#fff", py: 10 }}>
+      {/* Service Overview */}
+      <Container maxWidth="lg" sx={{ textAlign: "center", mb: 8 }}>
+        <Typography variant="h3" sx={{ fontWeight: "bold", mb: 2, color: theme.palette.primary.main }}>
+          Our HVAC Services
+        </Typography>
+        <Typography variant="body1" sx={{ maxWidth: 800, mx: "auto", color: "#ccc" }}>
+          We provide a comprehensive range of HVAC services designed to keep your home or business
+          comfortable all year round. Explore our offerings below.
+        </Typography>
+      </Container>
+
+      {/* Service Cards */}
+      <Container maxWidth="lg" sx={{ mb: 8 }}>
+        <Grid container spacing={4} justifyContent="center">
+          {[
+            { title: "Repair",       image: "/Repair.jpeg",    desc: "Expert HVAC repairs to ensure optimal performance.", link: "/repairs" },
+            { title: "Maintenance",  image: "/maintnace.jpeg", desc: "Regular maintenance to extend system life.",        link: "/maintenance" },
+            { title: "Installation", image: "/install.jpeg",   desc: "Professional HVAC installation services.",          link: "/installation" },
+          ].map(({ title, image, desc, link }) => (
+            <Grid item xs={12} sm={6} md={4} key={title}>
+              <Card
+                sx={{
+                  backgroundColor: "#333",
+                  color: "#fff",
+                  borderRadius: 2,
+                  transition: "transform 0.3s",
+                  "&:hover": { transform: "scale(1.05)" },
+                }}
+              >
+                <CardMedia component="img" height="200" image={image} alt={title} sx={{ borderRadius: "2px 2px 0 0" }} />
+                <CardContent>
+                  <Typography variant="h5" sx={{ mb: 1, color: theme.palette.primary.main }}>
+                    {title}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 2, color: "#ccc" }}>
+                    {desc}
+                  </Typography>
+                  <Button variant="contained" color="primary" onClick={handleServiceClick(link)}>
+                    Learn More
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+
+      {/* Why Choose Us */}
+      <Container maxWidth="lg" sx={{ mb: 8, textAlign: "center" }}>
+        <Typography variant="h4" sx={{ mb: 4, fontWeight: "bold", color: theme.palette.primary.main }}>
+          Why Choose Atmosfair?
+        </Typography>
+        <Grid container spacing={4} justifyContent="center">
+          {[
+            { title: "24/7 Emergency Support", desc: "Available whenever you need us." },
+            { title: "Expert Technicians",      desc: "Certified and experienced professionals." },
+            { title: "Transparent Pricing",     desc: "No hidden fees or unexpected costs." },
+          ].map(({ title, desc }) => (
+            <Grid item xs={12} sm={4} key={title}>
+              <Box sx={{ textAlign: "center", backgroundColor: "#333", p: 4, borderRadius: 2 }}>
+                <Typography variant="h6" sx={{ mb: 1, color: "#00aaff" }}>
+                  {title}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#aaa" }}>
+                  {desc}
+                </Typography>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
       </Container>
     </Box>
   );

@@ -1,19 +1,37 @@
-import { TextField, Button, Typography, Box, Paper, MenuItem, Grid } from '@mui/material';
+import { TextField, Button, Typography, Box, Paper, MenuItem ,Grid } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const Installation = () => {
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [selectedTime, setSelectedTime] = useState(null);
   const [installType, setInstallType] = useState("");
-  const timeSlots = [
-    "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
-    "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM",
-    "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
-  ];
+  const [availableSlots, setAvailableSlots] = useState([]);
+
+  // Fetch available slots when date or type changes
+  useEffect(() => {
+    if (selectedDate && installType) {
+      fetchAvailableSlots(selectedDate.format("YYYY-MM-DD"), installType);
+    }
+  }, [selectedDate, installType]);
+
+  const fetchAvailableSlots = async (date, type) => {
+    try {
+      const response = await fetch(`http://localhost:5001/api/schedule/available-slots?date=${date}&type=${type}`);
+      const data = await response.json();
+      if (response.ok) {
+        setAvailableSlots(data);
+      } else {
+        alert(data.message || "Failed to fetch available slots.");
+      }
+    } catch (err) {
+      console.error("Error fetching slots:", err);
+      alert("Error fetching available slots.");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,13 +49,14 @@ const Installation = () => {
           userId,
           type: installType,
           date: selectedDate.format("YYYY-MM-DD"),
-          time: selectedTime
-        })
+          time: selectedTime,
+        }),
       });
 
       const data = await response.json();
       if (response.ok) {
         alert("Appointment scheduled!");
+        setSelectedTime(null); // Reset selected time
       } else {
         alert(data.message || "Failed to schedule.");
       }
@@ -61,34 +80,35 @@ const Installation = () => {
         </Typography>
 
         <form onSubmit={handleSubmit}>
-          <TextField
-            select
-            label="Type of Installation"
-            fullWidth
-            margin="normal"
-            SelectProps={{ native: true }}
-            variant="filled"
-            sx={{
-              backgroundColor: '#2c2c2c',
-              borderRadius: 1,
-              '& .MuiInputBase-input': { color: 'white' },
-              '& .MuiInputLabel-root': { color: '#90caf9' },
-              '& .MuiSvgIcon-root': { color: '#2196F3' }
-            }}
-            InputLabelProps={{ shrink: true }}
-            required
-            value={installType}
-            onChange={(e) => setInstallType(e.target.value)}
-          >
-            <option value="">Select an option</option>
-            <option value="central">Central Air Conditioning</option>
-            <option value="ductless">Ductless Mini-Split</option>
-            <option value="furnace">Furnace Installation</option>
-            <option value="heatpump">Heat Pump</option>
-            <option value="Refrigeration">Refrigeration</option>
-            <option value="Suspended Unit">Suspended Unit</option>
-            <option value="RoofTop">RoofTop</option>
-          </TextField>
+<TextField
+  select
+  label="Repair Type"
+  fullWidth
+  margin="normal"
+  variant="filled"
+  sx={{
+    backgroundColor: '#2c2c2c',
+    borderRadius: 1,
+    '& .MuiInputBase-input': { color: 'white' },
+    '& .MuiInputLabel-root': { color: '#90caf9' },
+    '& .MuiSvgIcon-root': { color: '#2196F3' }
+  }}
+  InputLabelProps={{ shrink: true }}
+  required
+  value={installType}
+  onChange={(e) => setInstallType(e.target.value)}
+>
+  <MenuItem value="">Select an option</MenuItem>
+  <MenuItem value="installation">Central Air Conditioning</MenuItem>
+  <MenuItem value="installation">Ductless Mini-Split</MenuItem>
+  <MenuItem value="installation">Furnace Installation</MenuItem>
+  <MenuItem value="installation">Heat Pump</MenuItem>
+  <MenuItem value="installation">Refrigeration</MenuItem>
+  <MenuItem value="installation">Suspended Unit</MenuItem>
+  <MenuItem value="installation">Roof Top</MenuItem>
+  <MenuItem value="installation">Natural Gas</MenuItem>
+</TextField>
+
 
           <Grid container spacing={3} sx={{ mt: 2 }}>
             <Grid item xs={12} md={6}>
@@ -116,19 +136,25 @@ const Installation = () => {
               <Typography variant="h6" sx={{ mb: 1 }}>Select Time:</Typography>
               <Box sx={{ maxHeight: 360, overflowY: 'auto', pr: 1 }}>
                 <Grid container direction="column" spacing={1}>
-                  {timeSlots.map((slot) => (
-                    <Grid item key={slot}>
-                      <Button
-                        variant={selectedTime === slot ? "contained" : "outlined"}
-                        fullWidth
-                        color="error"
-                        onClick={() => setSelectedTime(slot)}
-                        sx={{ fontWeight: 'bold' }}
-                      >
-                        {slot}
-                      </Button>
-                    </Grid>
-                  ))}
+                  {availableSlots.length > 0 ? (
+                    availableSlots.map((slot) => (
+                      <Grid item key={slot}>
+                        <Button
+                          variant={selectedTime === slot ? "contained" : "outlined"}
+                          fullWidth
+                          color="error"
+                          onClick={() => setSelectedTime(slot)}
+                          sx={{ fontWeight: 'bold' }}
+                        >
+                          {slot}
+                        </Button>
+                      </Grid>
+                    ))
+                  ) : (
+                    <Typography variant="body2" color="error">
+                      No available slots for this day.
+                    </Typography>
+                  )}
                 </Grid>
               </Box>
             </Grid>
