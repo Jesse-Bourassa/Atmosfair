@@ -17,6 +17,13 @@ import IconButton from '@mui/material/IconButton';
 import ChevronLeft  from '@mui/icons-material/ChevronLeft';
 import ChevronRight from '@mui/icons-material/ChevronRight';
 
+const bgByType = {
+  installation : '#1976d2',   // blue
+  maintenance  : '#43a047',   // green
+  repair       : '#f57c00'    // orange
+};
+
+
 /* ---------- localizer ---------- */
 const locales = { 'en-US': enUS };
 const localizer = dateFnsLocalizer({
@@ -30,9 +37,8 @@ const localizer = dateFnsLocalizer({
 /* ---------- transform DB → events ---------- */
 const toEvents = (apts) =>
   apts.map((a) => {
-    // pad “9:30 AM” → “09:30 AM”
-    const padded = a.time.length === 7 ? '0' + a.time : a.time;
-    const start = parse(`${a.date} ${padded}`, 'yyyy-MM-dd hh:mm a', new Date());
+    const padded = a.time.length === 4 ? '0' + a.time : a.time;      // “9:30” → “09:30”
+    const start  = parse(`${a.date} ${padded}`, 'yyyy-MM-dd HH:mm', new Date());
 
     const end = new Date(start);
     if (a.type === 'installation') end.setHours(18, 0, 0, 0);
@@ -40,14 +46,6 @@ const toEvents = (apts) =>
 
     return { id: a._id, start, end, title: a.type };
   });
-
-/* ---------- pill colours ---------- */
-const bgByType = {
-  heatpump: '#43a047',
-  furnace:  '#f57c00',
-  installation: '#1976d2'
-};
-
 
 const CustomToolbar = (props) => {
     const { onNavigate, label } = props;
@@ -122,14 +120,17 @@ const CalendarScheduler = ({ appointments }) => {
         min={new Date(0, 0, 0, 8, 0)}
         max={new Date(0, 0, 0, 18, 0)}
         style={{ height: 1000 }}
-        eventPropGetter={(evt) => ({
+        eventPropGetter={(evt) => {
+          const bg = bgByType[evt.title] || '#e53935';
+          return{
           style: {
-            backgroundColor:'red',
+            backgroundColor: bg,
             border: 'none',
             borderRadius: 6,
             boxShadow: '0 1px 4px rgba(0,0,0,.3)'
           }
-        })}
+        };
+        }}
       />
     </div>
   );

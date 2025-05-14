@@ -103,5 +103,27 @@ router.get("/available-slots", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+router.get("/", async (req, res) => {
+  try {
+    // ▸ tweak query / sorting to suit your UI
+    const schedules = await Schedule.find().sort({ date: 1, time: 1 });
+    res.json(schedules);           // 200 OK, JSON array
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
+/* ───── GET /api/schedule/:id ───── */
+router.get("/", async (req, res) => {
+  const { userId } = req.query;
+  const filter = userId ? { userId } : {};
+  try {
+    const schedules = await Schedule.find(filter).sort({ date: 1, time: 1 });
+    res.json(schedules);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 module.exports = router;

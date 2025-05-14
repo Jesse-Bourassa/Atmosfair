@@ -14,13 +14,13 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Services = () => {
-  const { currentUser } = useAuth();     // null / undefined when logged‑out
+  const { user } = useAuth();     // null / undefined when logged‑out
   const navigate = useNavigate();
   const theme = useTheme();
 
   /* decide where to go on click */
   const handleServiceClick = (path) => () => {
-    if (currentUser) {
+    if (user) {
       navigate(path);
     } else {
       // save the intended route so you can push them back after login (optional)
