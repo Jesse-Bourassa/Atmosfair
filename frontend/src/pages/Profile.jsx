@@ -12,10 +12,13 @@ const Profile = () => {
 
   /* ─── fetch this user’s appointments ─── */
   useEffect(() => {
+      const apiBase = import.meta.env.VITE_API_URL ?? 'https://api.atmosfairs.com';
+
     const fetchAppointments = async () => {
       try {
         const res  = await fetch(
-          `http://localhost:5001/api/schedule?userId=${user._id}`
+          
+          `${apiBase}/api/schedule?userId=${user._id}`
         );
         const data = await res.json();
         if (res.ok) setAppts(data);

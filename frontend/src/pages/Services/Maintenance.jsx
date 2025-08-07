@@ -22,11 +22,11 @@ const Maintenance = () => {
       );
     }
   }, [selectedDate, maintType]);
-
+  const apiBase = import.meta.env.VITE_API_URL ?? 'https://api.atmosfairs.com';
   const fetchAvailableSlots = async (date, type) => {
     try {
       const res  = await fetch(
-        `http://localhost:5001/api/schedule/available-slots?date=${date}&type=${type}`
+        `${apiBase}/api/schedule/available-slots?date=${date}&type=${type}`
       );
       const data = await res.json();
       if (res.ok) setAvailableSlots(data);
@@ -47,7 +47,7 @@ const Maintenance = () => {
 
     const userId = localStorage.getItem('userId');   // adjust if stored differently
     try {
-      const res = await fetch('http://localhost:5001/api/schedule', {
+      const res = await fetch(`${apiBase}/api/schedule`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

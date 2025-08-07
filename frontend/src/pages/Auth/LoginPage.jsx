@@ -29,7 +29,8 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch('http://localhost:5001/api/auth/login', {
+      const apiBase = import.meta.env.VITE_API_URL ?? 'https://api.atmosfairs.com';
+      const res = await fetch(`${apiBase}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

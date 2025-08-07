@@ -14,10 +14,11 @@ const Dashboard = () => {
   /* -------------------------------------------------- */
   useEffect(() => {
     const token = localStorage.getItem('token');
+    const apiBase = import.meta.env.VITE_API_URL ?? 'https://api.atmosfairs.com';
 
     const fetchCustomers = async () => {
       try {
-        const res  = await fetch('http://localhost:5001/api/users/customers', {
+        const res  = await fetch(`${apiBase}/api/users/customers`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -29,7 +30,7 @@ const Dashboard = () => {
 
     const fetchAppointments = async () => {
       try {
-        const res  = await fetch('http://localhost:5001/api/schedule', {
+        const res  = await fetch(`${apiBase}/api/schedule`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();

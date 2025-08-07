@@ -18,7 +18,8 @@ const Appointments = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const res = await fetch("http://localhost:5001/api/schedule");
+        const apiBase = import.meta.env.VITE_API_URL ?? 'https://api.atmosfairs.com';
+        const res = await fetch(`${apiBase}/api/schedule`);
         const data = await res.json();
         setAppointments(data);
       } catch (err) {

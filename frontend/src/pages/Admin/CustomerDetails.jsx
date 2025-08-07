@@ -4,6 +4,10 @@ import { Box, Typography, CircularProgress } from "@mui/material";
 
 const CustomerDetails = () => {
   const { id } = useParams();
+
+    const apiBase = import.meta.env.VITE_API_URL ?? 'https://api.atmosfairs.com';
+
+
   const [customer, setCustomer] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -36,7 +40,7 @@ const CustomerDetails = () => {
     const fetchCustomer = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`http://localhost:5001/api/users/${id}`, {
+        const res = await fetch(`${apiBase}/api/users/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -62,7 +66,7 @@ const CustomerDetails = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5001/api/users/${id}/equipment`, {
+      const res = await fetch(`${apiBase}/api/users/${id}/equipment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -91,7 +95,7 @@ const CustomerDetails = () => {
   const handleDeleteEquipment = async (index) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5001/api/users/${id}/equipment/${index}`, {
+      const res = await fetch(`${apiBase}/api/users/${id}/equipment/${index}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -116,7 +120,7 @@ const CustomerDetails = () => {
   const handleUpdateEquipment = async (index) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5001/api/users/${id}/equipment/${index}`, {
+      const res = await fetch(`${apiBase}/api/users/${id}/equipment/${index}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

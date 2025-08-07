@@ -23,7 +23,8 @@ const Customers = () => {
     const fetchCustomers = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5001/api/users/customers", {
+        const apiBase = import.meta.env.VITE_API_URL ?? 'https://api.atmosfairs.com';
+        const res = await fetch(`${apiBase}/api/users/customers`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

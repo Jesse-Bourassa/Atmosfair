@@ -1,30 +1,37 @@
+version: "3.9"
+
 services:
+  mongodb:
+    image: mongo
+    volumes:
+      - mongo-data:/data/db
+    restart: always
+    ports:                         # ← add this block
+    - "27017:27017"   
+
   backend:
-    build: ./backend
-    ports:
-      - "5001:5000"
+    build: ./backend          # your Dockerfile exposes 5000
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/atmosfair-db
     depends_on:
       - mongodb
     restart: always
-    environment:
-      - MONGO_URI=mongodb://mongodb:27017/atmosfair-db
+    ports:             #  ← add
+    - "5001:5000"                # only inside the compose network
 
   frontend:
-    build: ./frontend
-    ports:
-      - "5173:5173" # Map port 5173 (where Vite runs) to port 5173 on the host
-    depends_on:
-      - backend
+    build:
+      context: ./frontend
+      target: production      # make the Dockerfile build a static bundle
     restart: always
+    expose:
+      - "80" 
+    ports:
+      - "3005:80"     # hostPort:containerPort   ← ADD THIS                 # container runs nginx:alpine and serves dist
 
-  mongodb:
-    image: mongo
-    container_name: hvac-mongodb
-    restart: always
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
+networks:
+  default:
+    name: atmosfair_net
 
 volumes:
   mongo-data:

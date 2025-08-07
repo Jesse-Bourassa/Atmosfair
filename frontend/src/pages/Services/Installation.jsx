@@ -17,10 +17,11 @@ const Installation = () => {
       fetchAvailableSlots(selectedDate.format("YYYY-MM-DD"), installType);
     }
   }, [selectedDate, installType]);
+  const apiBase = import.meta.env.VITE_API_URL ?? 'https://api.atmosfairs.com';
 
   const fetchAvailableSlots = async (date, type) => {
     try {
-      const response = await fetch(`http://localhost:5001/api/schedule/available-slots?date=${date}&type=${type}`);
+      const response = await fetch(`${apiBase}/api/schedule/available-slots?date=${date}&type=${type}`);
       const data = await response.json();
       if (response.ok) {
         setAvailableSlots(data);
@@ -42,7 +43,7 @@ const Installation = () => {
 
     const userId = localStorage.getItem("userId");
     try {
-      const response = await fetch("http://localhost:5001/api/schedule", {
+      const response = await fetch(`${apiBase}/api/schedule`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

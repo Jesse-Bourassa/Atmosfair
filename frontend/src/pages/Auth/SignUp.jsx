@@ -36,7 +36,8 @@ const SignUp = () => {
     }
 
     try {
-      const res = await fetch('http://localhost:5001/api/auth/signup', {
+      const apiBase = import.meta.env.VITE_API_URL ?? 'https://api.atmosfairs.com';
+      const res = await fetch(`${apiBase}/api/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
