@@ -11,12 +11,14 @@ const About = () => {
   ];
 
   return (
+
     <Box sx={{ backgroundColor: '#1e1e1e', color: '#fff', py: 10 }}>
       <Container maxWidth="lg">
 
         {/* mission */}
         <Typography variant="h3" align="center" gutterBottom sx={{ color: '#90caf9' }}>
           Bringing Comfort Back Home
+
         </Typography>
         <Typography variant="h6" align="center" sx={{ mb: 6 }}>
           We're on a mission to make your home the most comfortable place on earth.
