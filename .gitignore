@@ -5,8 +5,9 @@ node_modules/
 dist/
 build/
 
-# dotenv environment variables
+# dotenv files
 .env
+.env.*
 
 backend/env
 *.env
