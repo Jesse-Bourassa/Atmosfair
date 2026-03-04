@@ -1,5 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from "react";
+import { apiUrl } from "../../lib/api";
 import {
+  Box,
+  CircularProgress,
+  InputAdornment,
+  Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -8,29 +14,41 @@ import {
   TableRow,
   TextField,
   Typography,
-  Box,
-  Paper,
-  CircularProgress,
+  Chip,
 } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
 
-const Customers = () => {
-  const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(true);
+/**
+ * Props (recommended):
+ * - customers: array
+ * - loading: boolean
+ *
+ * If not provided, component will fallback to fetching.
+ */
+const Customers = ({ customers: customersProp, loading: loadingProp }) => {
+  const [customers, setCustomers] = useState(customersProp ?? []);
+  const [loading, setLoading] = useState(loadingProp ?? (customersProp ? false : true));
+  const [query, setQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
+    // If Dashboard passes props, use them
+    if (customersProp) {
+      setCustomers(customersProp);
+      setLoading(!!loadingProp);
+      return;
+    }
+
+    // Fallback fetch (only if props not provided)
     const fetchCustomers = async () => {
       try {
         const token = localStorage.getItem("token");
-        const apiBase = import.meta.env.VITE_API_URL ?? 'https://api.atmosfairs.com';
-        const res = await fetch(`${apiBase}/api/users/customers`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const res = await fetch(apiUrl("/api/users/customers"), {
+          headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        setCustomers(data.map((c) => ({ ...c, visible: true })));
+        setCustomers(data);
       } catch (err) {
         console.error("Failed to fetch customers", err);
       } finally {
@@ -39,84 +57,131 @@ const Customers = () => {
     };
 
     fetchCustomers();
-  }, []);
+  }, [customersProp, loadingProp]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return customers;
+
+    return (customers ?? []).filter((c) => {
+      const name = (c.name ?? "").toLowerCase();
+      const email = (c.email ?? "").toLowerCase();
+      const phone = (c.mainPhone ?? "").toLowerCase();
+      return name.includes(q) || email.includes(q) || phone.includes(q);
+    });
+  }, [customers, query]);
 
   return (
-    <>
-      <Typography variant="h4" gutterBottom>
-        Customer List
-      </Typography>
+    <Box>
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        alignItems={{ md: "center" }}
+        justifyContent="space-between"
+        gap={1.5}
+        sx={{ mb: 2 }}
+      >
+        
 
-      <TextField
-        label="Search customers"
-        variant="outlined"
-        fullWidth
-        sx={{
-          mb: 3,
-          backgroundColor: "#f5f5f5",
-          borderRadius: 2,
-          input: { color: "#333" }
-        }}
-        onChange={(e) =>
-          setCustomers((prev) =>
-            prev.map((c) => ({
-              ...c,
-              visible:
-                c.name.toLowerCase().includes(e.target.value.toLowerCase()) ||
-                c.email.toLowerCase().includes(e.target.value.toLowerCase()),
-            }))
-          )
-        }
-      />
+        <TextField
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search name, email, phone..."
+          size="small"
+          sx={{
+            width: { xs: "100%", md: "100%" },
+            "& .MuiOutlinedInput-root": {
+              bgcolor: "rgba(255,255,255,0.05)",
+              borderRadius: 2,
+              color: "rgba(255,255,255,0.85)",
+              "& fieldset": { borderColor: "rgba(255,255,255,0.10)" },
+              "&:hover fieldset": { borderColor: "rgba(33,150,243,0.35)" },
+              "&.Mui-focused fieldset": { borderColor: "rgba(33,150,243,0.65)" },
+            },
+            "& input::placeholder": { color: "rgba(255,255,255,0.45)" },
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="small" style={{ color: "rgba(255,255,255,0.55)" }} />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Stack>
 
       {loading ? (
-        <CircularProgress />
+        <Stack alignItems="center" sx={{ py: 4 }}>
+          <CircularProgress size={28} />
+        </Stack>
       ) : (
-        <TableContainer component={Paper} sx={{
-          maxHeight: 600,
-          backgroundColor: "#3a3a3a",
-          border: "3px solid #9c9c9c",
-          borderRadius: 2,
-          overflow: "hidden",
-        }}>
-          <Table stickyHeader>
+        <TableContainer
+          component={Paper}
+          sx={{
+            maxHeight: 640,
+            borderRadius: 3,
+            bgcolor: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            overflow: "hidden",
+          }}
+        >
+          <Table stickyHeader size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ color: "#fff", fontWeight: 500, py: 1.5 }}>Name</TableCell>
-                <TableCell sx={{ color: "#fff", fontWeight: 500, py: 1.5 }}>Email</TableCell>
-                <TableCell sx={{ color: "#fff", fontWeight: 500, py: 1.5 }}>Phone</TableCell>
-                <TableCell sx={{ color: "#fff", fontWeight: 500, py: 1.5 }}>Address</TableCell>
+                <HeaderCell>Name</HeaderCell>
+                <HeaderCell>Email</HeaderCell>
+                <HeaderCell>Phone</HeaderCell>
+                <HeaderCell>Address</HeaderCell>
               </TableRow>
             </TableHead>
+
             <TableBody>
-              {customers
-                .filter((c) => c.visible !== false)
-                .map((user, index) => (
-                  <TableRow key={user._id}
-                    style={{ backgroundColor: index % 2 === 0 ? "#2a2a2a" : "#242424" }}
-                    onClick={() => navigate(`/admin/customer/${user._id}`)}
-                    sx={{
-                      backgroundColor: "#2a2a2a",
-                      "&:hover": {
-                        backgroundColor: "#3c3c3c",
-                        transform: "scale(1.01)",
-                        cursor: "pointer",
-                        transition: "all 0.2s ease-in-out"
-                      }
-                    }}
-                  >
-                    <TableCell sx={{ color: "#fff", fontWeight: 500, py: 1.5 }}>{user.name}</TableCell>
-                    <TableCell sx={{ color: "#fff", fontWeight: 500, py: 1.5 }}>{user.email}</TableCell>
-                    <TableCell sx={{ color: "#fff", fontWeight: 500, py: 1.5 }}>{user.mainPhone}</TableCell>
-                    <TableCell sx={{ color: "#fff", fontWeight: 500, py: 1.5 }}>{user.address}</TableCell>
-                  </TableRow>
-                ))}
+              {filtered.map((user) => (
+                <TableRow
+                  key={user._id}
+                  onClick={() => navigate(`/admin/customer/${user._id}`)}
+                  sx={{
+                    cursor: "pointer",
+                    "& td": { borderColor: "rgba(255,255,255,0.06)" },
+                    "&:hover": { bgcolor: "rgba(33,150,243,0.10)" },
+                  }}
+                >
+                  <BodyCell sx={{ fontWeight: 700 }}>{user.name}</BodyCell>
+                  <BodyCell>{user.email}</BodyCell>
+                  <BodyCell>{user.mainPhone}</BodyCell>
+                  <BodyCell sx={{ maxWidth: 360, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {user.address}
+                  </BodyCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
       )}
-    </>
+    </Box>
   );
 };
+
+const HeaderCell = (props) => (
+  <TableCell
+    {...props}
+    sx={{
+      fontWeight: 800,
+      color: "rgba(255,255,255,0.85)",
+      bgcolor: "rgba(15,15,15,0.85)",
+      borderColor: "rgba(255,255,255,0.08)",
+      py: 1.25,
+    }}
+  />
+);
+
+const BodyCell = (props) => (
+  <TableCell
+    {...props}
+    sx={{
+      color: "rgba(255,255,255,0.78)",
+      py: 1.2,
+    }}
+  />
+);
 
 export default Customers;

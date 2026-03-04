@@ -6,6 +6,7 @@ import {
   Typography,
   Paper
 } from '@mui/material';
+import { apiUrl } from "../../lib/api";
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -29,8 +30,7 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      const apiBase = import.meta.env.VITE_API_URL ?? 'https://api.atmosfairs.com';
-      const res = await fetch(`${apiBase}/api/auth/login`, {
+      const res = await fetch(apiUrl('/api/auth/login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -6,6 +6,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
+import { apiUrl } from "../../lib/api";
 
 const Maintenance = () => {
   const [selectedDate, setSelectedDate]   = useState(dayjs());
@@ -22,11 +23,11 @@ const Maintenance = () => {
       );
     }
   }, [selectedDate, maintType]);
-  const apiBase = import.meta.env.VITE_API_URL ?? 'https://api.atmosfairs.com';
+
   const fetchAvailableSlots = async (date, type) => {
     try {
       const res  = await fetch(
-        `${apiBase}/api/schedule/available-slots?date=${date}&type=${type}`
+        apiUrl(`/api/schedule/available-slots?date=${date}&type=${type}`)
       );
       const data = await res.json();
       if (res.ok) setAvailableSlots(data);
@@ -47,7 +48,7 @@ const Maintenance = () => {
 
     const userId = localStorage.getItem('userId');   // adjust if stored differently
     try {
-      const res = await fetch(`${apiBase}/api/schedule`, {
+      const res = await fetch(apiUrl(`/api/schedule`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

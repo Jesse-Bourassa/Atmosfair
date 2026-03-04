@@ -8,6 +8,7 @@ import {
   Paper,
   Container
 } from '@mui/material';
+import { apiUrl } from "../../lib/api";
 import { Link, useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
@@ -36,8 +37,7 @@ const SignUp = () => {
     }
 
     try {
-      const apiBase = import.meta.env.VITE_API_URL ?? 'https://api.atmosfairs.com';
-      const res = await fetch(`${apiBase}/api/auth/signup`, {
+      const res = await fetch(apiUrl('/api/auth/signup'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

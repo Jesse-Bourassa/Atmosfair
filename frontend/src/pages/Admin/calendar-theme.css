@@ -1,128 +1,241 @@
+/* =========================
+   Calendar Theme (Atmosfair)
+   ========================= */
 
-
-/* ───────── Glass card wrapper ───────── */
-.scheduler-card {
-  backdrop-filter: blur(6px);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  box-shadow: 0 8px 18px rgb(0 0 0 / 0.55);
-  padding: 6px;
-}
-
-/* ───────── Toolbar ───────── */
-.rbc-toolbar {
-  background: transparent;
-  padding: 4px 8px;
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-.rbc-toolbar-label {
-  flex: 1;
-  text-align: center;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: #e6e8ef;
-}
-.rbc-btn-group button {
-  background: rgba(13, 110, 253, 0.15);
-  color: #e6e8ef;
-  border: none;
-  padding: 4px 14px;
-  border-radius: 9999px;
-  font-size: 0.78rem;
-  transition: background 0.15s;
-}
-.rbc-btn-group button:hover {
-  background: rgba(13, 110, 253, 0.3);
-}
-.rbc-btn-group .rbc-active {
-  background: #0d6efd;
+:root{
+  --cal-surface: rgba(255,255,255,0.035);
+  --cal-surface-2: rgba(255,255,255,0.02);
+  --cal-stroke: rgba(255,255,255,0.06);
+  --cal-stroke-soft: rgba(255,255,255,0.035);
+  --cal-text: rgba(235,245,255,0.90);
+  --cal-muted: rgba(235,245,255,0.60);
+  --cal-muted-2: rgba(235,245,255,0.42);
+  --cal-accent: rgba(13,110,253,0.95);
+  --cal-accent-soft: rgba(13,110,253,0.18);
+  --cal-shadow: 0 14px 50px rgba(0,0,0,0.42);
 }
 
-/* ───────── Headers & grid ───────── */
-.rbc-time-header .rbc-header {
-  background: transparent;
-  color: #9cb7ff;
-  border-color: rgba(255, 255, 255, 0.08);
-  font-weight: 500;
-}
-.rbc-time-slot {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-.rbc-time-slot:nth-child(even) {
-  background: rgba(255, 255, 255, 0.03);
-}
-.rbc-time-content > * + * {
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+/* ---- base surface ---- */
+.rbc-calendar{
+  color: var(--cal-text);
 }
 
-/* ───────── Events ───────── */
-.rbc-event {
-  border-radius: 10px !important;
-  box-shadow: 0 3px 8px rgb(0 0 0 / 0.5);
-  font-size: 0.8rem;
-  line-height: 1.2;
-  padding: 2px 6px;
-  font-weight: 600;
-  text-transform: capitalize;
-  color: #fff;
+.rbc-time-view,
+.rbc-month-view{
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.025));
+  border: 1px solid var(--cal-stroke);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--cal-shadow);
+  backdrop-filter: blur(10px);
 }
 
-/* ───────── Scrollbar ───────── */
-.rbc-time-content::-webkit-scrollbar {
-  width: 8px;
+/* Remove default harsh outlines */
+.rbc-time-view *,
+.rbc-month-view *{
+  outline: none !important;
 }
-.rbc-time-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 8px;
-}
-.rbc-today { background: rgba(13, 110, 253, 0.07) !important; }
-.rbc-btn-group .rbc-active {
-  background: #0d6efd !important;     /* same HVAC blue */
-  color: #e6e8ef !important;          /* light text */
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15);
-}
-/* reusable pill look */
-.rbc-pill {
-  background: rgba(13, 110, 253, 0.15);
-  color: #e6e8ef;
-  border: none;
-  padding: 4px 14px;
-  border-radius: 9999px;
-  font-size: 0.78rem;
+
+/* ---- toolbar (your custom one) ---- */
+.rbc-toolbar{
+  padding: 10px 12px;
+  gap: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s;
-}
-.rbc-pill:hover {
-  background: rgba(13, 110, 253, 0.30);
 }
 
-/* apply to reset & icon buttons */
-.rbc-reset-btn   { @apply rbc-pill; }      /* if you’re using Tailwind */
-.rbc-nav-btn     { @apply rbc-pill; width: 32px; }
+.rbc-toolbar-label{
+  color: var(--cal-text);
+  font-weight: 900;
+  letter-spacing: .3px;
+  padding: 0 10px;
+  opacity: .95;
+}
 
-/* (without Tailwind) duplicate rule: */
-.rbc-reset-btn,
-.rbc-nav-btn {
-  background: rgba(13, 110, 253, 0.15);
-  color: #e6e8ef;
-  border: none;
-  padding: 4px 14px;
+.rbc-nav-btn{
+  border-radius: 9999px !important;
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+.rbc-reset-btn{
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.85);
+  padding: 7px 14px;
   border-radius: 9999px;
-  font-size: 0.78rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s;
+  font-weight: 800;
+  cursor: pointer;
 }
-.rbc-reset-btn:hover,
-.rbc-nav-btn:hover {
-  background: rgba(13, 110, 253, 0.30);
+.rbc-reset-btn:hover{
+  background: rgba(255,255,255,0.08);
 }
-/* narrow pills for arrows */
-.rbc-nav-btn { width: 52px; padding: 4 px; }
 
+/* view buttons */
+.rbc-btn-group{
+  display: flex;
+  gap: 8px;
+}
+.rbc-btn-group button{
+  background: rgba(13,110,253,0.14);
+  color: rgba(255,255,255,0.88);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 7px 14px;
+  border-radius: 9999px;
+  font-weight: 850;
+  cursor: pointer;
+}
+.rbc-btn-group button:hover{
+  background: rgba(13,110,253,0.24);
+}
+.rbc-btn-group .rbc-active{
+  background: rgba(13,110,253,0.92);
+  border-color: rgba(255,255,255,0.16);
+}
+
+/* ---- header row ---- */
+.rbc-time-header{
+  background: var(--cal-surface-2);
+  border-bottom: 1px solid var(--cal-stroke);
+}
+
+/* header cells */
+.rbc-time-header .rbc-header{
+  color: rgba(190,210,255,0.92);
+  font-weight: 900;
+  padding: 10px 0;
+  border-left: 0 !important;       /* kill extra lines */
+  border-right: 0 !important;
+}
+
+/* week: day names center + cleaner */
+.rbc-time-header-content{
+  border-left: 1px solid var(--cal-stroke-soft) !important;
+}
+
+/* ---- time gutter ---- */
+.rbc-time-gutter{
+  background: rgba(255,255,255,0.02);
+}
+.rbc-time-gutter,
+.rbc-label{
+  color: var(--cal-muted);
+  font-weight: 800;
+}
+
+/* Remove the “boxed” look in the gutter */
+.rbc-time-gutter .rbc-timeslot-group{
+  border-bottom: 1px solid rgba(255,255,255,0.02) !important;
+}
+
+/* ---- grid / slots ---- */
+/* Big one: remove RBC default borders then re-add ultra-soft lines */
+.rbc-time-content{
+  border-top: 0 !important;
+}
+.rbc-time-content > * + *{
+  border-left: 1px solid rgba(255,255,255,0.03) !important;
+}
+
+/* kill heavy slot borders */
+.rbc-time-slot{
+  border-top: 0 !important;
+}
+
+/* Add subtle row separators using inset shadow instead of borders */
+.rbc-day-slot .rbc-time-slot{
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.025);
+}
+
+/* Soft row banding (super subtle) */
+.rbc-timeslot-group:nth-child(even){
+  background: rgba(255,255,255,0.012);
+}
+.rbc-timeslot-group:nth-child(odd){
+  background: rgba(0,0,0,0.02);
+}
+
+/* ---- today ---- */
+.rbc-today{
+  background: rgba(13,110,253,0.06) !important;
+}
+
+/* ---- current time indicator ---- */
+.rbc-current-time-indicator{
+  background: rgba(255,255,255,0.75) !important;
+  height: 2px !important;
+  box-shadow: 0 0 14px rgba(13,110,253,0.55);
+}
+
+/* ---- selection ---- */
+.rbc-slot-selection{
+  background: rgba(13,110,253,0.22) !important;
+  border: 1px solid rgba(13,110,253,0.25) !important;
+  border-radius: 10px;
+}
+
+/* ---- events ---- */
+/* Let your inline eventPropGetter decide color, but make the shape premium */
+.rbc-event{
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+}
+.rbc-event:hover{
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  transition: 120ms ease;
+}
+
+/* event text */
+.rbc-event-content{
+  font-weight: 850;
+  letter-spacing: .2px;
+}
+
+/* ---- month view cleanup (if you use it) ---- */
+.rbc-month-row + .rbc-month-row{
+  border-top: 1px solid rgba(255,255,255,0.03) !important;
+}
+.rbc-day-bg + .rbc-day-bg{
+  border-left: 1px solid rgba(255,255,255,0.03) !important;
+}
+
+/* ---- scrollbars (week view) ---- */
+.rbc-time-content{
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+.rbc-time-content::-webkit-scrollbar{
+  width: 10px;
+}
+.rbc-time-content::-webkit-scrollbar-track{
+  background: transparent;
+}
+.rbc-time-content::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,0.14);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.rbc-time-content::-webkit-scrollbar-thumb:hover{
+  background: rgba(255,255,255,0.22);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* Optional: hide the all-day row if it feels like wasted space */
+.rbc-time-view .rbc-allday-cell{
+  display: none;
+}
+.rbc-time-view .rbc-time-header-content{
+  border-top: 0 !important;
+}
+/* calm the grid lines even more */
+.rbc-time-content > * + *{
+  border-left: 1px solid rgba(255,255,255,0.02) !important;
+}
+.rbc-day-slot .rbc-time-slot{
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.015) !important;
+}

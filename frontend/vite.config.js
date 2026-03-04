@@ -13,7 +13,6 @@ export default defineConfig({
       '/api': {
         target: 'http://192.168.2.139:5001', // Your backend server IP and port
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
       }
     }       // Ensure it's the same port you're mapping
   },
