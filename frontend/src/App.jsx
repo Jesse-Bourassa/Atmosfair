@@ -18,7 +18,7 @@ import Profile from './pages/Profile';
 import Dashboard from './pages/Admin/Dashboard';
 import { AuthProvider } from "./context/AuthContext"; // 👈 Import
 import CustomerDetails from './pages/Admin/CustomerDetails';
-
+import BodyClassController from "./BodyClassController";
 
 
 
@@ -77,6 +77,7 @@ function App() {
     <ThemeProvider theme={theme}> {/* Wrap your app with the ThemeProvider */}
     <AuthProvider> {/* Wrap your app with the AuthProvider */}
       <Router>
+      <BodyClassController />
       <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -89,7 +90,7 @@ function App() {
           <Route path='/maintenance' element={<Maintenance/>}/>
           <Route path='/repairs' element={<Repairs/>}/>
           <Route path='/profile' element={<Profile/>}/>
-          <Route path='/Admin/Dashboard' element={<Dashboard/>}/>
+          <Route path='/admin/Dashboard' element={<Dashboard/>}/>
           <Route path='/admin/customer/:id' element={<CustomerDetails />} />
         </Routes>
       </Router>

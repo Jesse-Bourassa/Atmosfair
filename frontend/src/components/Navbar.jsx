@@ -45,7 +45,15 @@ const Navbar = () => {
 
   return (
     <>
-      <AppBar position="fixed" sx={{ backgroundColor: theme.palette.primary.main }}>
+      <AppBar
+  position="fixed"
+  elevation={0}
+  sx={{
+    background: "rgba(37, 75, 119, 0.75)",
+    backdropFilter: "blur(12px)",
+    borderBottom: "1px solid rgba(255,255,255,0.06)",
+  }}
+>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           <Typography
             variant="h6"
