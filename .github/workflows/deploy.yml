@@ -1,0 +1,14 @@
+name: Deploy Atmosfair
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, x64, atmosfair]
+
+    steps:
+      - name: Deploy on Unraid
+        run: /mnt/user/scripts/deploy-atmosfair.sh
