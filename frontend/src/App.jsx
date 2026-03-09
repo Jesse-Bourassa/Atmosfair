@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material';
+import { ThemeProvider, createTheme, Box } from '@mui/material';
 import './App.css';
 
 // Import Pages
@@ -77,23 +77,25 @@ function App() {
     <ThemeProvider theme={theme}> {/* Wrap your app with the ThemeProvider */}
     <AuthProvider> {/* Wrap your app with the AuthProvider */}
       <Router>
-      <BodyClassController />
-      <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/service" element={<Services />} />
-          <Route path="/installation" element={<Installation/>} />
-          <Route path='/signup' element={<Signup/>}/>
-          <Route path='/login' element={<Login/>}/>
-          <Route path='/forgot-password' element={<ForgotPassword/>}/>
-          <Route path='/maintenance' element={<Maintenance/>}/>
-          <Route path='/repairs' element={<Repairs/>}/>
-          <Route path='/profile' element={<Profile/>}/>
-          <Route path='/admin/Dashboard' element={<Dashboard/>}/>
-          <Route path='/admin/customer/:id' element={<CustomerDetails />} />
-        </Routes>
-      </Router>
+  <BodyClassController />
+  <Navbar />
+<Box sx={{ pt: "calc(64px + env(safe-area-inset-top))" }}>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/service" element={<Services />} />
+      <Route path="/installation" element={<Installation/>} />
+      <Route path='/signup' element={<Signup/>}/>
+      <Route path='/login' element={<Login/>}/>
+      <Route path='/forgot-password' element={<ForgotPassword/>}/>
+      <Route path='/maintenance' element={<Maintenance/>}/>
+      <Route path='/repairs' element={<Repairs/>}/>
+      <Route path='/profile' element={<Profile/>}/>
+      <Route path='/admin/Dashboard' element={<Dashboard/>}/>
+      <Route path='/admin/customer/:id' element={<CustomerDetails />} />
+    </Routes>
+  </Box>
+</Router>
       </AuthProvider> {/* Close the AuthProvider here */}
     </ThemeProvider>
   );

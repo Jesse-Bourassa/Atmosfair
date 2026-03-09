@@ -1,25 +1,52 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import {
-  AppBar, Toolbar, Typography, Button, IconButton, Drawer,
-  List, ListItem, ListItemText, Box, Menu, MenuItem
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  IconButton,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemText,
+  Box,
+  Menu,
+  MenuItem,
+  Divider,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { Link, useNavigate } from "react-router-dom"; // ✅ added useNavigate
-import { useTheme } from "@mui/material/styles";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import { useAuth } from "../context/AuthContext"; // 👈
+import CloseIcon from "@mui/icons-material/Close";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useTheme } from "@mui/material/styles";
+import { useAuth } from "../context/AuthContext";
 
+const NAVBAR_HEIGHT = { xs: 68, md: 74 };
 
 const Navbar = () => {
   const theme = useTheme();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null); // ✅ for dropdown
+  const navigate = useNavigate();
+  const location = useLocation();
   const { user, setUser } = useAuth();
-  const navigate = useNavigate(); // ✅ navigation for logout/profile
 
- 
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+  const navLinks = useMemo(() => {
+    const links = [
+      { label: "Home", path: "/" },
+      { label: "About", path: "/about" },
+      { label: "Services", path: "/service" },
+    ];
+
+    if (user?.role === "admin") {
+      links.push({ label: "Dashboard", path: "/admin/dashboard" });
+    }
+
+    return links;
+  }, [user]);
+
+  const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
 
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
@@ -29,166 +56,365 @@ const Navbar = () => {
     localStorage.removeItem("token");
     setUser(null);
     handleMenuClose();
+    setMobileOpen(false);
     navigate("/");
   };
 
   const handleProfile = () => {
     handleMenuClose();
+    setMobileOpen(false);
     navigate("/profile");
   };
 
-  const navLinks = [
-    { label: "Home", path: "/" },
-    { label: "About", path: "/about" },
-    { label: "Service", path: "/service" },
-  ];
+  const isActive = (path) => {
+    if (path === "/") return location.pathname === "/";
+    return location.pathname.startsWith(path);
+  };
+
+  const desktopLinkSx = (path) => ({
+    color: "#eaf2ff",
+    textTransform: "none",
+    fontSize: "0.98rem",
+    fontWeight: 700,
+    px: 2.1,
+    py: 0.9,
+    borderRadius: "12px",
+    background: isActive(path)
+      ? "linear-gradient(90deg, rgba(58,123,213,0.95), rgba(79,163,255,0.95))"
+      : "transparent",
+    boxShadow: isActive(path) ? "0 0 18px rgba(79,163,255,0.22)" : "none",
+    border: isActive(path)
+      ? "1px solid rgba(255,255,255,0.10)"
+      : "1px solid transparent",
+    "&:hover": {
+      background: isActive(path)
+        ? "linear-gradient(90deg, rgba(58,123,213,1), rgba(79,163,255,1))"
+        : "rgba(255,255,255,0.06)",
+    },
+  });
 
   return (
     <>
       <AppBar
-  position="fixed"
-  elevation={0}
-  sx={{
-    background: "rgba(37, 75, 119, 0.75)",
-    backdropFilter: "blur(12px)",
-    borderBottom: "1px solid rgba(255,255,255,0.06)",
-  }}
->
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Typography
-            variant="h6"
+        position="fixed"
+        elevation={0}
+        sx={{
+          top: 0,
+          background: "rgba(9, 18, 30, 0.78)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          boxShadow: "0 8px 30px rgba(0,0,0,0.18)",
+        }}
+      >
+        <Toolbar
+          disableGutters
+          sx={{
+            minHeight: NAVBAR_HEIGHT,
+            px: { xs: 2, sm: 3, md: 4 },
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Box
             component={Link}
             to="/"
             sx={{
               textDecoration: "none",
-              color: theme.palette.text.primary,
-              fontWeight: "bold",
-              flex: "0 0 auto",
+              display: "flex",
+              alignItems: "center",
+              gap: 1.2,
+              minWidth: 0,
             }}
           >
-            Atmosfair
-          </Typography>
+            <Typography
+              sx={{
+                color: "#f8fafc",
+                fontWeight: 800,
+                letterSpacing: "-0.02em",
+                fontSize: { xs: "1.05rem", md: "1.15rem" },
+                whiteSpace: "nowrap",
+              }}
+            >
+              Atmosfair
+            </Typography>
+          </Box>
 
-          <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2, justifyContent: "center", flex: 1 }}>
-
+          <Box
+            sx={{
+              display: { xs: "none", md: "flex" },
+              alignItems: "center",
+              gap: 1.2,
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
+            }}
+          >
             {navLinks.map((item) => (
-              
               <Button
                 key={item.label}
                 component={Link}
                 to={item.path}
-                sx={{
-                  color: theme.palette.text.primary,
-                  textTransform: "none",
-                  fontSize: "1rem",
-                  fontWeight: 500,
-                  px: 2.5,
-                  py: .7,
-                  borderRadius: 2,
-                  "&:hover": {
-                    backgroundColor: theme.palette.primary.light,
-                  },
-                }}
+                sx={desktopLinkSx(item.path)}
               >
                 {item.label}
               </Button>
             ))}
-            
-            {user?.role === "admin" && (
-  <Button
-    component={Link}
-    to="/admin/dashboard"
-    sx={{
-      color: theme.palette.text.primary,
-      textTransform: "none",
-      fontSize: "1rem",
-      fontWeight: 500,
-      px: 2.5,
-      py: 0.7,
-      borderRadius: 2,
-      "&:hover": {
-        backgroundColor: theme.palette.primary.light,
-      },
-    }}
-  >
-    Dashboard
-  </Button>
-)}
-
           </Box>
 
-          <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2, flex: "0 0 auto" }}>
+          <Box
+            sx={{
+              display: { xs: "none", md: "flex" },
+              alignItems: "center",
+              gap: 1.5,
+            }}
+          >
             {user ? (
               <>
                 <IconButton
                   onClick={handleMenuOpen}
                   sx={{
-                    backgroundColor: "white",
-                    color: theme.palette.primary.main,
+                    width: 42,
+                    height: 42,
                     borderRadius: "50%",
-                    width: 40,
-                    height: 40,
-                    fontWeight: "bold",
-                    fontSize: "1.2rem",
+                    background:
+                      "linear-gradient(135deg, rgba(255,255,255,0.98), rgba(230,240,255,0.95))",
+                    color: theme.palette.primary.main,
+                    fontWeight: 800,
+                    fontSize: "1rem",
+                    border: "1px solid rgba(255,255,255,0.55)",
                     "&:hover": {
-                      backgroundColor: theme.palette.grey[200],
+                      background:
+                        "linear-gradient(135deg, rgba(255,255,255,1), rgba(238,245,255,1))",
                     },
                   }}
                 >
-                  {user.name.charAt(0).toUpperCase()}
+                  {user?.name?.charAt(0)?.toUpperCase() || "U"}
                 </IconButton>
 
                 <Menu
                   anchorEl={anchorEl}
                   open={Boolean(anchorEl)}
                   onClose={handleMenuClose}
+                  PaperProps={{
+                    sx: {
+                      mt: 1,
+                      borderRadius: "16px",
+                      minWidth: 180,
+                      background: "rgba(15, 23, 36, 0.96)",
+                      color: "#fff",
+                      backdropFilter: "blur(14px)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                    },
+                  }}
                 >
                   <MenuItem onClick={handleProfile}>Profile</MenuItem>
                   <MenuItem onClick={handleLogout}>Logout</MenuItem>
                 </Menu>
               </>
             ) : (
-              <IconButton
+              <Button
                 component={Link}
                 to="/login"
+                variant="outlined"
                 sx={{
-                  backgroundColor: "white",
-                  color: theme.palette.primary.main,
-                  borderRadius: "50%",
-                  width: 40,
-                  height: 40,
+                  color: "#fff",
+                  borderColor: "rgba(255,255,255,0.14)",
+                  textTransform: "none",
+                  fontWeight: 700,
+                  borderRadius: "12px",
+                  px: 2.2,
+                  py: 0.85,
+                  background: "rgba(255,255,255,0.02)",
                   "&:hover": {
-                    backgroundColor: theme.palette.grey[200],
+                    borderColor: "rgba(255,255,255,0.22)",
+                    background: "rgba(255,255,255,0.05)",
                   },
                 }}
+                startIcon={<AccountCircleIcon />}
               >
-                <AccountCircleIcon />
-              </IconButton>
+                Login
+              </Button>
             )}
           </Box>
 
           <IconButton
             edge="end"
-            color="inherit"
-            aria-label="menu"
-            sx={{ display: { md: "none" } }}
+            aria-label="open menu"
             onClick={handleDrawerToggle}
+            sx={{
+              display: { xs: "inline-flex", md: "none" },
+              color: "#f8fafc",
+              width: 42,
+              height: 42,
+              borderRadius: "12px",
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.03)",
+              "&:hover": {
+                background: "rgba(255,255,255,0.06)",
+              },
+            }}
           >
             <MenuIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
 
-      <Drawer anchor="right" open={mobileOpen} onClose={handleDrawerToggle}>
-        <List sx={{ width: 250 }}>
+      <Drawer
+        anchor="right"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        PaperProps={{
+          sx: {
+            width: "82%",
+            maxWidth: 340,
+            background: "rgba(8, 14, 24, 0.98)",
+            color: "#fff",
+            backdropFilter: "blur(18px)",
+            WebkitBackdropFilter: "blur(18px)",
+            borderLeft: "1px solid rgba(255,255,255,0.08)",
+          },
+        }}
+      >
+        <Box
+          sx={{
+            px: 2,
+            py: 1.5,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            minHeight: 68,
+          }}
+        >
+          <Typography sx={{ fontWeight: 800, fontSize: "1.1rem" }}>
+            Menu
+          </Typography>
+
+          <IconButton
+            onClick={handleDrawerToggle}
+            sx={{
+              color: "#fff",
+              borderRadius: "12px",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </Box>
+
+        <Divider sx={{ borderColor: "rgba(255,255,255,0.06)" }} />
+
+        <List sx={{ px: 1.5, py: 1.5 }}>
           {navLinks.map((item) => (
-            <ListItem button key={item.label} component={Link} to={item.path} onClick={handleDrawerToggle}>
-              <ListItemText primary={item.label} />
-            </ListItem>
+            <ListItemButton
+              key={item.label}
+              component={Link}
+              to={item.path}
+              onClick={handleDrawerToggle}
+              sx={{
+                mb: 1,
+                borderRadius: "14px",
+                py: 1.35,
+                px: 1.8,
+                background: isActive(item.path)
+                  ? "linear-gradient(90deg, rgba(58,123,213,0.95), rgba(79,163,255,0.95))"
+                  : "transparent",
+                border: isActive(item.path)
+                  ? "1px solid rgba(255,255,255,0.10)"
+                  : "1px solid transparent",
+                "&:hover": {
+                  background: isActive(item.path)
+                    ? "linear-gradient(90deg, rgba(58,123,213,1), rgba(79,163,255,1))"
+                    : "rgba(255,255,255,0.05)",
+                },
+              }}
+            >
+              <ListItemText
+                primary={item.label}
+                primaryTypographyProps={{
+                  fontWeight: 700,
+                  color: "#f8fafc",
+                }}
+              />
+            </ListItemButton>
           ))}
-          <ListItem button component={Link} to="/contact" onClick={handleDrawerToggle}>
-            <ListItemText primary="Get a Quote" />
-          </ListItem>
+
+          <Divider
+            sx={{
+              my: 1.5,
+              borderColor: "rgba(255,255,255,0.06)",
+            }}
+          />
+
+          {user ? (
+            <>
+              <ListItemButton
+                onClick={handleProfile}
+                sx={{
+                  mb: 1,
+                  borderRadius: "14px",
+                  py: 1.35,
+                  px: 1.8,
+                  "&:hover": {
+                    background: "rgba(255,255,255,0.05)",
+                  },
+                }}
+              >
+                <ListItemText
+                  primary="Profile"
+                  primaryTypographyProps={{
+                    fontWeight: 700,
+                    color: "#f8fafc",
+                  }}
+                />
+              </ListItemButton>
+
+              <ListItemButton
+                onClick={handleLogout}
+                sx={{
+                  borderRadius: "14px",
+                  py: 1.35,
+                  px: 1.8,
+                  "&:hover": {
+                    background: "rgba(255,255,255,0.05)",
+                  },
+                }}
+              >
+                <ListItemText
+                  primary="Logout"
+                  primaryTypographyProps={{
+                    fontWeight: 700,
+                    color: "#f8fafc",
+                  }}
+                />
+              </ListItemButton>
+            </>
+          ) : (
+            <ListItemButton
+              component={Link}
+              to="/login"
+              onClick={handleDrawerToggle}
+              sx={{
+                borderRadius: "14px",
+                py: 1.35,
+                px: 1.8,
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                "&:hover": {
+                  background: "rgba(255,255,255,0.06)",
+                },
+              }}
+            >
+              <ListItemText
+                primary="Login"
+                primaryTypographyProps={{
+                  fontWeight: 700,
+                  color: "#f8fafc",
+                }}
+              />
+            </ListItemButton>
+          )}
         </List>
       </Drawer>
     </>
