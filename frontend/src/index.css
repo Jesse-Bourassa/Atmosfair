@@ -2,54 +2,37 @@
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  /* Remove this to avoid browser dark/light weirdness */
-  /* color-scheme: light dark; */
-
   color: rgba(255, 255, 255, 0.87);
-
-  /* remove this (it causes gray gutters): */
-  /* background-color: #1e1e1e; */
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-html, body, #root {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-
-  /* REMOVE this */
-  /* place-items: center; */
-
-  /* default background (public) */
-  background: #0b0c10;
-  background-attachment: fixed;
-}
-
-/* make root NOT center everything */
+html,
+body,
 #root {
   width: 100%;
+  min-height: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background: #0a0d12;
+}
+
+
+
+#root {
   max-width: none;
   margin: 0;
   text-align: left;
 }
 
-/* background modes */
-body.bg-public {
-  background: #1e1e1e;
-  background-attachment: fixed;
-}
-
-body.bg-admin::before{
-  content:"";
+body.bg-admin::before {
+  content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
@@ -62,21 +45,40 @@ body.bg-admin::before{
 body::-webkit-scrollbar {
   display: none;
 }
-/* nicer scrollbars inside cards */
+
 .card-scroll {
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.18) transparent;
 }
-.card-scroll::-webkit-scrollbar { width: 10px; }
-.card-scroll::-webkit-scrollbar-track { background: transparent; }
+
+.card-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+
+.card-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 .card-scroll::-webkit-scrollbar-thumb {
   background: rgba(255,255,255,0.16);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
+
 .card-scroll::-webkit-scrollbar-thumb:hover {
   background: rgba(255,255,255,0.25);
   border: 2px solid transparent;
   background-clip: content-box;
+}
+.app-shell {
+  min-height: 100vh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  background:
+    radial-gradient(circle at 15% 20%, rgba(70,110,170,0.05), transparent 28%),
+    radial-gradient(circle at 85% 10%, rgba(255,255,255,0.02), transparent 20%),
+    linear-gradient(to bottom, #0a0d12 0%, #0d1117 45%, #0b0e13 100%);
 }

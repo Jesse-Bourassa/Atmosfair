@@ -1,11 +1,7 @@
 // frontend/src/components/LogoWheel.jsx
 import React from "react";
 import { Box } from "@mui/material";
-import Carousel from "react-multi-carousel";
-import "react-multi-carousel/lib/styles.css";
-import { useTheme } from "@mui/material/styles";
 
-// Add (or remove) filenames as needed – they must exist in /public/logos
 const logos = [
   "Carrier.png",
   "Gree.png",
@@ -14,39 +10,72 @@ const logos = [
   "York.png",
 ];
 
-// One size fits all – we just care about a strip of logos
-const responsive = {
-  desktop: { breakpoint: { max: 3000, min: 0 }, items: 5, slidesToSlide: 1 },
-};
+// duplicate the array so the loop is seamless
+const loopLogos = [...logos, ...logos];
 
 const LogoWheel = () => {
-  const theme = useTheme();
-
   return (
-    <Box sx={{ py: 3, bgcolor: "#eaeaea" }}>
-      <Carousel
-        responsive={responsive}
-        infinite
-        autoPlay                 /* keep it moving */
-        autoPlaySpeed={0}        /* rely on customTransition timing */
-        customTransition="transform 30000ms linear" /* 30 s for full loop */
-        transitionDuration={30000}
-        arrows={false}
-        draggable={false}
-        swipeable={false}
-        pauseOnHover={false}
-        removeArrowOnDeviceType={["desktop", "tablet", "mobile"]}
+    <Box
+       sx={{
+        py: 6,
+        px: 2,
+        background: "linear-gradient(to bottom, #1f2c3d, #162231)",
+        borderRadius: "20px",
+        boxShadow: "0 10px 35px rgba(0,0,0,0.35)",
+        overflow: "hidden",
+        position: "relative",
+        border: "1px solid rgba(255,255,255,0.08)",
+        backdropFilter: "blur(12px)",
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          width: "max-content",
+          animation: "logoTicker 28s linear infinite",
+          "@keyframes logoTicker": {
+            "0%": {
+              transform: "translateX(0)",
+            },
+            "100%": {
+              transform: "translateX(-50%)",
+            },
+          },
+        }}
       >
-        {logos.map((logo, idx) => (
+        {loopLogos.map((logo, idx) => (
           <Box
             key={idx}
-            component="img"
-            src={`/logos/${logo}`}
-            alt={`logo-${idx}`}
-            sx={{ height: 80, px: 3, transform: "scale(2)", transformOrigin: "center" }}
-          />
+            sx={{
+              flex: "0 0 auto",
+              width: { xs: 160, md: 300 },
+              height: { xs: 40, md: 70 },
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              px: 4,
+            }}
+          >
+            <Box
+              component="img"
+              src={`/logos/${logo}`}
+              alt={`logo-${idx}`}
+              sx={{
+                maxHeight: { xs: 100, md: 160  },
+                maxWidth: "100%",
+                width: "auto",
+                objectFit: "contain",
+                opacity: 0.9,
+                transition: "transform 0.25s ease, opacity 0.25s ease",
+                "&:hover": {
+                  opacity: 1,
+                  transform: "scale(1.08)",
+                },
+              }}
+            />
+          </Box>
         ))}
-      </Carousel>
+      </Box>
     </Box>
   );
 };

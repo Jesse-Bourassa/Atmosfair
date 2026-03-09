@@ -5,101 +5,409 @@ import {
   Container,
   Grid,
   Button,
-  Card,
-  CardContent,
-  CardMedia,
+  Paper,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { motion } from "framer-motion";
+import {
+  Build,
+  Tune,
+  Engineering,
+  AcUnit,
+  Whatshot,
+  VolumeUp,
+  Air,
+} from "@mui/icons-material";
+
+const MotionBox = motion(Box);
 
 const Services = () => {
-  const { user } = useAuth();     // null / undefined when logged‑out
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const theme = useTheme();
 
-  /* decide where to go on click */
   const handleServiceClick = (path) => () => {
     if (user) {
       navigate(path);
     } else {
-      // save the intended route so you can push them back after login (optional)
       navigate("/login", { state: { from: path } });
     }
   };
 
-  return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "#1c1c1c", color: "#fff", py: 10 }}>
-      {/* Service Overview */}
-      <Container maxWidth="lg" sx={{ textAlign: "center", mb: 8 }}>
-        <Typography variant="h3" sx={{ fontWeight: "bold", mb: 2, color: theme.palette.primary.main }}>
-          Our HVAC Services
-        </Typography>
-        <Typography variant="body1" sx={{ maxWidth: 800, mx: "auto", color: "#ccc" }}>
-          We provide a comprehensive range of HVAC services designed to keep your home or business
-          comfortable all year round. Explore our offerings below.
-        </Typography>
-      </Container>
+  const services = [
+    {
+      title: "Repair",
+      subtitle: "Fix issues quickly",
+      desc: "Fast diagnostics and dependable HVAC repairs to restore comfort and performance.",
+      image: "/atmo.jpeg",
+      link: "/repairs",
+      icon: <Build sx={{ color: "#7fb3ff", fontSize: 30 }} />,
+    },
+    {
+      title: "Maintenance",
+      subtitle: "Protect your system",
+      desc: "Routine service that helps extend equipment life and keep everything running efficiently.",
+      image: "/atmo.jpeg",
+      link: "/maintenance",
+      icon: <Tune sx={{ color: "#7fb3ff", fontSize: 30 }} />,
+    },
+    {
+      title: "Installation",
+      subtitle: "New system setup",
+      desc: "Professional HVAC installation for new systems or replacements done with care.",
+      image: "/atmo.jpeg",
+      link: "/installation",
+      icon: <Engineering sx={{ color: "#7fb3ff", fontSize: 30 }} />,
+    },
+  ];
 
-      {/* Service Cards */}
-      <Container maxWidth="lg" sx={{ mb: 8 }}>
-        <Grid container spacing={4} justifyContent="center">
-          {[
-            { title: "Repair",       image: "/Repair.jpeg",    desc: "Expert HVAC repairs to ensure optimal performance.", link: "/repairs" },
-            { title: "Maintenance",  image: "/maintnace.jpeg", desc: "Regular maintenance to extend system life.",        link: "/maintenance" },
-            { title: "Installation", image: "/install.jpeg",   desc: "Professional HVAC installation services.",          link: "/installation" },
-          ].map(({ title, image, desc, link }) => (
-            <Grid item xs={12} sm={6} md={4} key={title}>
-              <Card
+  const commonProblems = [
+    {
+      title: "AC Not Cooling",
+      desc: "Your system is running but the air is not cold enough.",
+      icon: <AcUnit sx={{ color: "#7fb3ff", fontSize: 30 }} />,
+      link: "/repairs",
+    },
+    {
+      title: "Furnace Not Heating",
+      desc: "Your home is not warming up properly during colder days.",
+      icon: <Whatshot sx={{ color: "#7fb3ff", fontSize: 30 }} />,
+      link: "/repairs",
+    },
+    {
+      title: "Strange Noises",
+      desc: "Buzzing, rattling, or banging sounds coming from the unit.",
+      icon: <VolumeUp sx={{ color: "#7fb3ff", fontSize: 30 }} />,
+      link: "/repairs",
+    },
+    {
+      title: "Poor Airflow",
+      desc: "Some rooms feel weak airflow or uneven comfort levels.",
+      icon: <Air sx={{ color: "#7fb3ff", fontSize: 30 }} />,
+      link: "/repairs",
+    },
+  ];
+
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        color: "#fff",
+        background:
+          "radial-gradient(circle at top, rgba(36,74,120,0.16), transparent 28%), linear-gradient(180deg, #08111c 0%, #0b1420 45%, #091018 100%)",
+        py: { xs: 10, md: 12 },
+      }}
+    >
+      <Container maxWidth="xl">
+        {/* Header */}
+        <Box sx={{ textAlign: "center", mb: { xs: 6, md: 8 } }}>
+          <Typography
+            sx={{
+              color: "#88a8c9",
+              fontWeight: 700,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              fontSize: "0.8rem",
+              mb: 1.5,
+            }}
+          >
+            Our Services
+          </Typography>
+
+          <Typography
+            sx={{
+              color: "#f8fafc",
+              fontWeight: 800,
+              lineHeight: 1.08,
+              fontSize: { xs: "2rem", md: "3.2rem" },
+              mb: 2,
+            }}
+          >
+            How Can We Help?
+          </Typography>
+
+          <Typography
+            sx={{
+              color: "#cbd5e1",
+              maxWidth: "760px",
+              mx: "auto",
+              lineHeight: 1.9,
+              fontSize: { xs: "1rem", md: "1.05rem" },
+            }}
+          >
+            Select the HVAC service that best matches your needs. We make it
+            easy to get the right help for your home or business.
+          </Typography>
+        </Box>
+
+        {/* Service cards */}
+        <Grid container spacing={3.5} justifyContent="center">
+          {services.map((service, index) => (
+            <Grid item xs={12} md={4} key={service.title}>
+              <MotionBox
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: index * 0.08 }}
+                viewport={{ once: true, amount: 0.2 }}
+              >
+                <Paper
+                  elevation={0}
+                  sx={{
+                    height: "100%",
+                    overflow: "hidden",
+                    borderRadius: "22px",
+                    background: "rgba(20, 28, 40, 0.62)",
+                    backdropFilter: "blur(14px)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    boxShadow: "0 10px 40px rgba(0,0,0,0.35)",
+                    transition: "all 0.35s ease",
+                    "&:hover": {
+                      transform: "translateY(-8px)",
+                      boxShadow:
+                        "0 22px 55px rgba(0,0,0,0.55), 0 0 30px rgba(79,163,255,0.08)",
+                      border: "1px solid rgba(255,255,255,0.15)",
+                    },
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={service.image}
+                    alt={service.title}
+                    sx={{
+                      width: "100%",
+                      height: 240,
+                      objectFit: "cover",
+                      display: "block",
+                    }}
+                  />
+
+                  <Box sx={{ p: 3.2 }}>
+                    <Box sx={{ mb: 2 }}>{service.icon}</Box>
+
+                    <Typography
+                      sx={{
+                        color: "#f8fafc",
+                        fontWeight: 800,
+                        fontSize: "1.45rem",
+                        mb: 1,
+                      }}
+                    >
+                      {service.title}
+                    </Typography>
+
+                    <Typography
+                      sx={{
+                        color: "#7fb3ff",
+                        fontWeight: 600,
+                        fontSize: "0.96rem",
+                        mb: 1.4,
+                      }}
+                    >
+                      {service.subtitle}
+                    </Typography>
+
+                    <Typography
+                      sx={{
+                        color: "#cbd5e1",
+                        lineHeight: 1.8,
+                        fontSize: "0.97rem",
+                        mb: 3,
+                      }}
+                    >
+                      {service.desc}
+                    </Typography>
+
+                    <Button
+                      variant="contained"
+                      onClick={handleServiceClick(service.link)}
+                      sx={{
+                        px: 3,
+                        py: 1.1,
+                        borderRadius: "12px",
+                        textTransform: "none",
+                        fontWeight: 700,
+                        background: "linear-gradient(90deg,#3a7bd5,#4fa3ff)",
+                        boxShadow: "0 0 18px rgba(0,170,255,0.25)",
+                        "&:hover": {
+                          background: "linear-gradient(90deg,#346ec0,#4597eb)",
+                        },
+                      }}
+                    >
+                      Select Service
+                    </Button>
+                  </Box>
+                </Paper>
+              </MotionBox>
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* Small trust strip */}
+        <Box
+          sx={{
+            mt: { xs: 6, md: 8 },
+            py: 2.2,
+            background: "rgba(10, 16, 24, 0.65)",
+            backdropFilter: "blur(10px)",
+            border: "1px solid rgba(255,255,255,0.05)",
+            borderRadius: "18px",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: { xs: 2, md: 5 },
+            }}
+          >
+            {[
+              "Licensed & Insured",
+              "Residential & Commercial",
+              "Reliable Scheduling",
+              "Professional Service",
+            ].map((item, index) => (
+              <Typography
+                key={index}
                 sx={{
-                  backgroundColor: "#333",
-                  color: "#fff",
-                  borderRadius: 2,
-                  transition: "transform 0.3s",
-                  "&:hover": { transform: "scale(1.05)" },
+                  color: "#d6deea",
+                  fontWeight: 600,
+                  fontSize: "0.95rem",
+                  letterSpacing: ".02em",
                 }}
               >
-                <CardMedia component="img" height="200" image={image} alt={title} sx={{ borderRadius: "2px 2px 0 0" }} />
-                <CardContent>
-                  <Typography variant="h5" sx={{ mb: 1, color: theme.palette.primary.main }}>
-                    {title}
-                  </Typography>
-                  <Typography variant="body2" sx={{ mb: 2, color: "#ccc" }}>
-                    {desc}
-                  </Typography>
-                  <Button variant="contained" color="primary" onClick={handleServiceClick(link)}>
-                    Learn More
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
+                ✓ {item}
+              </Typography>
+            ))}
+          </Box>
+        </Box>
 
-      {/* Why Choose Us */}
-      <Container maxWidth="lg" sx={{ mb: 8, textAlign: "center" }}>
-        <Typography variant="h4" sx={{ mb: 4, fontWeight: "bold", color: theme.palette.primary.main }}>
-          Why Choose Atmosfair?
-        </Typography>
-        <Grid container spacing={4} justifyContent="center">
-          {[
-            { title: "24/7 Emergency Support", desc: "Available whenever you need us." },
-            { title: "Expert Technicians",      desc: "Certified and experienced professionals." },
-            { title: "Transparent Pricing",     desc: "No hidden fees or unexpected costs." },
-          ].map(({ title, desc }) => (
-            <Grid item xs={12} sm={4} key={title}>
-              <Box sx={{ textAlign: "center", backgroundColor: "#333", p: 4, borderRadius: 2 }}>
-                <Typography variant="h6" sx={{ mb: 1, color: "#00aaff" }}>
-                  {title}
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#aaa" }}>
-                  {desc}
-                </Typography>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
+        {/* Problem section */}
+        <Box sx={{ mt: { xs: 8, md: 10 } }}>
+          <Box sx={{ textAlign: "center", mb: 4.5 }}>
+            <Typography
+              sx={{
+                color: "#88a8c9",
+                fontWeight: 700,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                fontSize: "0.8rem",
+                mb: 1.5,
+              }}
+            >
+              Not Sure Which Service?
+            </Typography>
+
+            <Typography
+              sx={{
+                color: "#f8fafc",
+                fontWeight: 800,
+                lineHeight: 1.08,
+                fontSize: { xs: "1.8rem", md: "2.6rem" },
+                mb: 2,
+              }}
+            >
+              Common HVAC Problems
+            </Typography>
+
+            <Typography
+              sx={{
+                color: "#cbd5e1",
+                maxWidth: "760px",
+                mx: "auto",
+                lineHeight: 1.9,
+                fontSize: { xs: "1rem", md: "1.03rem" },
+              }}
+            >
+              If you are not sure which service to choose, start with the issue
+              you are experiencing and we’ll guide you in the right direction.
+            </Typography>
+          </Box>
+
+          <Grid container spacing={3}>
+            {commonProblems.map((problem, index) => (
+              <Grid item xs={12} sm={6} md={3} key={problem.title}>
+                <MotionBox
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.06 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                >
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 3,
+                      height: "100%",
+                      borderRadius: "20px",
+                      background: "rgba(20, 28, 40, 0.62)",
+                      backdropFilter: "blur(14px)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      boxShadow: "0 10px 35px rgba(0,0,0,0.28)",
+                      transition: "all 0.35s ease",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      "&:hover": {
+                        transform: "translateY(-6px)",
+                        boxShadow:
+                          "0 18px 45px rgba(0,0,0,0.45), 0 0 24px rgba(79,163,255,0.06)",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                      },
+                    }}
+                  >
+                    <Box>
+                      <Box sx={{ mb: 2 }}>{problem.icon}</Box>
+
+                      <Typography
+                        sx={{
+                          color: "#f8fafc",
+                          fontWeight: 700,
+                          fontSize: "1.12rem",
+                          mb: 1.2,
+                        }}
+                      >
+                        {problem.title}
+                      </Typography>
+
+                      <Typography
+                        sx={{
+                          color: "#cbd5e1",
+                          lineHeight: 1.8,
+                          fontSize: "0.95rem",
+                          mb: 2.5,
+                        }}
+                      >
+                        {problem.desc}
+                      </Typography>
+                    </Box>
+
+                    <Button
+                      variant="outlined"
+                      onClick={handleServiceClick(problem.link)}
+                      sx={{
+                        alignSelf: "flex-start",
+                        px: 2.4,
+                        py: 0.95,
+                        borderRadius: "12px",
+                        textTransform: "none",
+                        fontWeight: 700,
+                        color: "#fff",
+                        borderColor: "rgba(255,255,255,0.12)",
+                        background: "rgba(255,255,255,0.02)",
+                        "&:hover": {
+                          borderColor: "rgba(255,255,255,0.22)",
+                          background: "rgba(255,255,255,0.05)",
+                        },
+                      }}
+                    >
+                      Get Help
+                    </Button>
+                  </Paper>
+                </MotionBox>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
       </Container>
     </Box>
   );
