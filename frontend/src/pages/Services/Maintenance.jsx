@@ -21,6 +21,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import BoltIcon from "@mui/icons-material/Bolt";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import { apiUrl } from "../../lib/api";
 
 const MotionBox = motion(Box);
@@ -36,6 +37,38 @@ const maintenanceOptions = [
   "Natural Gas",
 ];
 
+const filledInputStyles = {
+  "& .MuiFilledInput-root": {
+    background: "rgba(255,255,255,0.04)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: "14px",
+    color: "#fff",
+    overflow: "hidden",
+    "&:hover": {
+      background: "rgba(255,255,255,0.06)",
+    },
+    "&.Mui-focused": {
+      background: "rgba(255,255,255,0.07)",
+      border: "1px solid rgba(127,179,255,0.35)",
+    },
+  },
+  "& .MuiInputLabel-root": {
+    color: "#8fb4da",
+  },
+  "& .MuiInputBase-input": {
+    color: "#fff",
+  },
+  "& .MuiFilledInput-input": {
+    color: "#fff",
+  },
+  "& .MuiFormHelperText-root": {
+    color: "#94a3b8",
+  },
+  "& .MuiSvgIcon-root": {
+    color: "#7fb3ff",
+  },
+};
+
 const Maintenance = () => {
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [selectedTime, setSelectedTime] = useState(null);
@@ -43,6 +76,14 @@ const Maintenance = () => {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const [customer, setCustomer] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    address: "",
+    notes: "",
+  });
 
   const navigate = useNavigate();
 
@@ -54,6 +95,10 @@ const Maintenance = () => {
       setSelectedTime(null);
     }
   }, [selectedDate, maintType]);
+
+  const handleCustomerChange = (e) => {
+    setCustomer({ ...customer, [e.target.name]: e.target.value });
+  };
 
   const fetchAvailableSlots = async (date, type) => {
     setLoadingSlots(true);
@@ -83,12 +128,18 @@ const Maintenance = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!maintType || !selectedDate || !selectedTime) {
-      alert("Please fill in all fields.");
+    if (
+      !customer.name.trim() ||
+      !customer.phone.trim() ||
+      !customer.email.trim() ||
+      !customer.address.trim() ||
+      !maintType ||
+      !selectedDate ||
+      !selectedTime
+    ) {
+      alert("Please fill in all required fields.");
       return;
     }
-
-    const userId = localStorage.getItem("userId");
 
     try {
       setSubmitting(true);
@@ -97,17 +148,22 @@ const Maintenance = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId,
           type: "maintenance",
+          equipmentType: maintType,
           date: selectedDate.format("YYYY-MM-DD"),
           time: selectedTime,
+          name: customer.name.trim(),
+          phone: customer.phone.trim(),
+          email: customer.email.trim(),
+          address: customer.address.trim(),
+          notes: customer.notes.trim(),
         }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        alert("Maintenance appointment scheduled!");
+        alert("Maintenance request submitted successfully!");
         navigate("/");
       } else {
         alert(data.message || "Failed to schedule.");
@@ -166,9 +222,8 @@ const Maintenance = () => {
               fontSize: { xs: "1rem", md: "1.04rem" },
             }}
           >
-            Choose your equipment type, pick a date, and select an available
-            time slot. Keep your system running efficiently with scheduled
-            professional maintenance.
+            Choose your equipment type, enter your information, pick a date, and
+            select an available time slot.
           </Typography>
         </Box>
 
@@ -239,6 +294,114 @@ const Maintenance = () => {
                       mb: 2,
                     }}
                   >
+                    <PersonOutlineIcon sx={{ color: "#7fb3ff" }} />
+                    <Typography
+                      sx={{
+                        color: "#f8fafc",
+                        fontWeight: 800,
+                        fontSize: "1.25rem",
+                      }}
+                    >
+                      Customer Information
+                    </Typography>
+                  </Box>
+
+                  <Typography
+                    sx={{
+                      color: "#cbd5e1",
+                      mb: 2.5,
+                      lineHeight: 1.8,
+                      fontSize: "0.96rem",
+                    }}
+                  >
+                    Enter your contact details so we can confirm your
+                    appointment.
+                  </Typography>
+
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        label="Full Name"
+                        name="name"
+                        fullWidth
+                        required
+                        variant="filled"
+                        value={customer.name}
+                        onChange={handleCustomerChange}
+                        InputLabelProps={{ shrink: true }}
+                        sx={filledInputStyles}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        label="Phone Number"
+                        name="phone"
+                        fullWidth
+                        required
+                        variant="filled"
+                        value={customer.phone}
+                        onChange={handleCustomerChange}
+                        InputLabelProps={{ shrink: true }}
+                        sx={filledInputStyles}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <TextField
+                        label="Email"
+                        name="email"
+                        type="email"
+                        fullWidth
+                        required
+                        variant="filled"
+                        value={customer.email}
+                        onChange={handleCustomerChange}
+                        InputLabelProps={{ shrink: true }}
+                        sx={filledInputStyles}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <TextField
+                        label="Service Address"
+                        name="address"
+                        fullWidth
+                        required
+                        variant="filled"
+                        value={customer.address}
+                        onChange={handleCustomerChange}
+                        InputLabelProps={{ shrink: true }}
+                        sx={filledInputStyles}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <TextField
+                        label="Additional Notes"
+                        name="notes"
+                        fullWidth
+                        multiline
+                        minRows={4}
+                        variant="filled"
+                        value={customer.notes}
+                        onChange={handleCustomerChange}
+                        InputLabelProps={{ shrink: true }}
+                        placeholder="Optional details about the system, issue, access instructions, etc."
+                        sx={filledInputStyles}
+                      />
+                    </Grid>
+                  </Grid>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.2,
+                      mt: 4,
+                      mb: 2,
+                    }}
+                  >
                     <TuneIcon sx={{ color: "#7fb3ff" }} />
                     <Typography
                       sx={{
@@ -273,27 +436,8 @@ const Maintenance = () => {
                     InputLabelProps={{ shrink: true }}
                     variant="filled"
                     sx={{
+                      ...filledInputStyles,
                       mb: 3,
-                      "& .MuiFilledInput-root": {
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        borderRadius: "14px",
-                        color: "#fff",
-                        overflow: "hidden",
-                        "&:hover": {
-                          background: "rgba(255,255,255,0.06)",
-                        },
-                        "&.Mui-focused": {
-                          background: "rgba(255,255,255,0.07)",
-                          border: "1px solid rgba(127,179,255,0.35)",
-                        },
-                      },
-                      "& .MuiInputLabel-root": {
-                        color: "#8fb4da",
-                      },
-                      "& .MuiSvgIcon-root": {
-                        color: "#7fb3ff",
-                      },
                     }}
                   >
                     <MenuItem value="">Select an option</MenuItem>
@@ -541,6 +685,44 @@ const Maintenance = () => {
                       <Typography
                         sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
                       >
+                        Customer Name
+                      </Typography>
+                      <Typography sx={{ color: "#fff", fontWeight: 700 }}>
+                        {customer.name || "Not entered yet"}
+                      </Typography>
+                    </Paper>
+
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 2,
+                        borderRadius: "16px",
+                        background: "rgba(255,255,255,0.03)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                      }}
+                    >
+                      <Typography
+                        sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
+                      >
+                        Phone Number
+                      </Typography>
+                      <Typography sx={{ color: "#fff", fontWeight: 700 }}>
+                        {customer.phone || "Not entered yet"}
+                      </Typography>
+                    </Paper>
+
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 2,
+                        borderRadius: "16px",
+                        background: "rgba(255,255,255,0.03)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                      }}
+                    >
+                      <Typography
+                        sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
+                      >
                         Equipment Type
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
@@ -617,6 +799,10 @@ const Maintenance = () => {
                       type="submit"
                       fullWidth
                       disabled={
+                        !customer.name.trim() ||
+                        !customer.phone.trim() ||
+                        !customer.email.trim() ||
+                        !customer.address.trim() ||
                         !maintType ||
                         !selectedDate ||
                         !selectedTime ||

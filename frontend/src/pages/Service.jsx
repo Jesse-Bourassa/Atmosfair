@@ -1,14 +1,6 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Container,
-  Grid,
-  Button,
-  Paper,
-} from "@mui/material";
+import { Box, Typography, Container, Grid, Button, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
 import {
   Build,
@@ -23,15 +15,10 @@ import {
 const MotionBox = motion(Box);
 
 const Services = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleServiceClick = (path) => () => {
-    if (user) {
-      navigate(path);
-    } else {
-      navigate("/login", { state: { from: path } });
-    }
+    navigate(path);
   };
 
   const services = [
