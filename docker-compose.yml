@@ -11,6 +11,8 @@ services:
 
   backend:
     build: ./backend
+    env_file:
+      - ./backend/.env
     environment:
       - MONGO_URI=mongodb://mongodb:27017/atmosfair-db
     depends_on:
