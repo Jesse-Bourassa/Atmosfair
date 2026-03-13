@@ -1,11 +1,27 @@
 const mongoose = require("mongoose");
 
-const scheduleSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  type: { type: String, required: true }, // e.g. HVAC, Heat Pump
-  date: { type: String, required: true }, // format: YYYY-MM-DD
-  time: { type: String, required: true }, // format: "1:30 PM"
-  duration: { type: Number, required: true }
-}, { timestamps: true });
+const scheduleSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    phone: { type: String, required: true, trim: true },
+    email: { type: String, required: true, trim: true },
+    address: { type: String, required: true, trim: true },
+    notes: { type: String, default: "", trim: true },
+
+    type: { type: String, required: true }, // repair | maintenance | installation
+    equipmentType: { type: String, default: "", trim: true },
+
+    date: { type: String, required: true }, // YYYY-MM-DD
+    time: { type: String, required: true }, // 24h format: HH:mm
+    duration: { type: Number, required: true },
+
+    status: {
+      type: String,
+      enum: ["new", "confirmed", "completed", "cancelled"],
+      default: "new",
+    },
+  },
+  { timestamps: true }
+);
 
 module.exports = mongoose.model("Schedule", scheduleSchema);
