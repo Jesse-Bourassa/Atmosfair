@@ -10,7 +10,7 @@ const sendBookingConfirmation = async (booking) => {
     const resend = new Resend(process.env.RESEND_API_KEY);
 
     await resend.emails.send({
-      from: "Atmosfair <onboarding@resend.dev>",
+      from: "Atmosf'air <noreply@atmosfair.ca>",
       to: booking.email,
       subject: "Your service request was received",
       html: `
