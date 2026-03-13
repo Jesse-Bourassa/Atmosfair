@@ -1,11 +1,16 @@
 const { Resend } = require("resend");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const sendBookingConfirmation = async (booking) => {
   try {
+    if (!process.env.RESEND_API_KEY) {
+      console.error("RESEND_API_KEY is missing");
+      return;
+    }
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
     await resend.emails.send({
-      from: "Atmosfair <noreply@atmosfair.ca>",
+      from: "Atmosfair <onboarding@resend.dev>",
       to: booking.email,
       subject: "Your service request was received",
       html: `
