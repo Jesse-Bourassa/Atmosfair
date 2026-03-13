@@ -1,7 +1,7 @@
 const express = require("express");
 const Schedule = require("../models/Schedule");
 const router = express.Router();
-
+const sendBookingConfirmation = require("../utils/sendEmail");
 /* ───── Config ───── */
 const SERVICE_DURATIONS = {
   repair: 3,        // hours
@@ -84,6 +84,12 @@ router.post("/", async (req, res) => {
       duration,
       status: "new",
     });
+
+    try {
+  await sendBookingConfirmation(newSchedule);
+} catch (emailErr) {
+  console.error("Booking confirmation email failed:", emailErr);
+}
 
     res.status(201).json({
       message: "Appointment booked",
