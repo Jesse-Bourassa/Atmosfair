@@ -10,8 +10,11 @@ import {
 } from "@mui/material";
 import { apiUrl } from "../../lib/api";
 import { Link, useNavigate } from "react-router-dom";
+import { useLanguage } from "../../context/LanguageContext";
 
 const SignUp = () => {
+  const { t } = useLanguage();
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -32,7 +35,7 @@ const SignUp = () => {
     e.preventDefault();
 
     if (form.password !== form.confirmPassword) {
-      alert("Passwords do not match.");
+      alert(t("passwordsDoNotMatch"));
       return;
     }
 
@@ -48,10 +51,10 @@ const SignUp = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Something went wrong.");
+        throw new Error(data.message || t("somethingWentWrong"));
       }
 
-      alert("Signup successful!");
+      alert(t("signupSuccessful"));
       navigate("/login");
     } catch (err) {
       alert(err.message);
@@ -197,7 +200,7 @@ const SignUp = () => {
               mb: 0.8,
             }}
           >
-            Create Account
+            {t("createAccount")}
           </Typography>
 
           <Typography
@@ -210,7 +213,7 @@ const SignUp = () => {
               mb: 0.8,
             }}
           >
-            Join Atmosfair
+            {t("joinAtmosfair")}
           </Typography>
 
           <Typography
@@ -225,17 +228,16 @@ const SignUp = () => {
               px: { xs: 0.4, sm: 0 },
             }}
           >
-            Create your account to request HVAC services, manage your details,
-            and stay connected with Atmosfair.
+            {t("signupIntro")}
           </Typography>
 
           <form onSubmit={handleSubmit}>
             <Grid container spacing={{ xs: 1.4, sm: 2.2 }}>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Name"
+                  label={t("name")}
                   name="name"
-                  placeholder="Enter your full name"
+                  placeholder={t("enterFullName")}
                   value={form.name}
                   onChange={handleChange}
                   fullWidth
@@ -248,10 +250,10 @@ const SignUp = () => {
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Email"
+                  label={t("email")}
                   name="email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder={t("enterEmail")}
                   value={form.email}
                   onChange={handleChange}
                   fullWidth
@@ -264,9 +266,9 @@ const SignUp = () => {
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Main Phone Number"
+                  label={t("mainPhoneNumber")}
                   name="mainPhone"
-                  placeholder="Enter your main phone number"
+                  placeholder={t("enterMainPhoneNumber")}
                   value={form.mainPhone}
                   onChange={handleChange}
                   fullWidth
@@ -279,9 +281,9 @@ const SignUp = () => {
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Telephone Phone Number"
+                  label={t("telephonePhoneNumber")}
                   name="telephone"
-                  placeholder="Enter your telephone number"
+                  placeholder={t("enterTelephoneNumber")}
                   value={form.telephone}
                   onChange={handleChange}
                   fullWidth
@@ -294,9 +296,9 @@ const SignUp = () => {
 
               <Grid item xs={12}>
                 <TextField
-                  label="Address"
+                  label={t("address")}
                   name="address"
-                  placeholder="Enter your address"
+                  placeholder={t("enterAddress")}
                   value={form.address}
                   onChange={handleChange}
                   fullWidth
@@ -309,10 +311,10 @@ const SignUp = () => {
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Password"
+                  label={t("password")}
                   name="password"
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder={t("enterPassword")}
                   value={form.password}
                   onChange={handleChange}
                   fullWidth
@@ -325,10 +327,10 @@ const SignUp = () => {
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Confirm Password"
+                  label={t("confirmPassword")}
                   name="confirmPassword"
                   type="password"
-                  placeholder="Confirm your password"
+                  placeholder={t("confirmYourPassword")}
                   value={form.confirmPassword}
                   onChange={handleChange}
                   fullWidth
@@ -358,7 +360,7 @@ const SignUp = () => {
                 },
               }}
             >
-              Sign Up
+              {t("signUp")}
             </Button>
 
             <Typography
@@ -371,7 +373,7 @@ const SignUp = () => {
                 lineHeight: 1.6,
               }}
             >
-              Already have an account?{" "}
+              {t("alreadyHaveAccount")}{" "}
               <Box
                 component={Link}
                 to="/login"
@@ -386,7 +388,7 @@ const SignUp = () => {
                   },
                 }}
               >
-                Login here
+                {t("loginHere")}
               </Box>
             </Typography>
           </form>

@@ -2,8 +2,11 @@ import React from "react";
 import { Box, Typography, Button, Container, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function Hero() {
+  const { t } = useLanguage();
+
   return (
     <Box
       sx={{
@@ -14,7 +17,6 @@ export default function Hero() {
         alignItems: "center",
       }}
     >
-      {/* Video Background */}
       <Box
         component="video"
         autoPlay
@@ -32,7 +34,6 @@ export default function Hero() {
         <source src="/test.mp4" type="video/mp4" />
       </Box>
 
-      {/* Dark cinematic overlay */}
       <Box
         sx={{
           position: "absolute",
@@ -50,7 +51,6 @@ export default function Hero() {
         }}
       />
 
-      {/* Bottom fade to blend into next section */}
       <Box
         sx={{
           position: "absolute",
@@ -61,7 +61,6 @@ export default function Hero() {
         }}
       />
 
-      {/* Slight left-side highlight panel */}
       <Box
         sx={{
           position: "absolute",
@@ -72,7 +71,6 @@ export default function Hero() {
         }}
       />
 
-      {/* Content */}
       <Container
         maxWidth="xl"
         sx={{
@@ -97,7 +95,7 @@ export default function Hero() {
               fontSize: { xs: "0.75rem", md: "0.85rem" },
             }}
           >
-            Trusted HVAC Professionals
+            {t("heroBadge")}
           </Typography>
 
           <Typography
@@ -110,9 +108,9 @@ export default function Hero() {
               textShadow: "0 4px 24px rgba(0,0,0,0.35)",
             }}
           >
-            Reliable Comfort
+            {t("heroTitleLine1")}
             <br />
-            All Year Round
+            {t("heroTitleLine2")}
           </Typography>
 
           <Typography
@@ -124,9 +122,7 @@ export default function Hero() {
               mb: 4,
             }}
           >
-            Atmosfair provides professional heating, cooling, and ventilation
-            services for residential and commercial properties with dependable
-            workmanship, energy-efficient solutions, and service you can trust.
+            {t("heroDescription")}
           </Typography>
 
           <Stack
@@ -153,7 +149,7 @@ export default function Hero() {
                 },
               }}
             >
-              Explore Our Services
+              {t("exploreServices")}
             </Button>
 
             <Button
@@ -177,7 +173,7 @@ export default function Hero() {
                 },
               }}
             >
-              Learn More
+              {t("learnMore")}
             </Button>
           </Stack>
         </Box>

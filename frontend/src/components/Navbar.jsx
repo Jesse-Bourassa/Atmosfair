@@ -20,10 +20,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 
 const NAVBAR_HEIGHT = { xs: 68, md: 74 };
 
 const Navbar = () => {
+  const { t, language, setLanguage } = useLanguage();
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,17 +36,17 @@ const Navbar = () => {
 
   const navLinks = useMemo(() => {
     const links = [
-      { label: "Home", path: "/" },
-      { label: "About", path: "/about" },
-      { label: "Services", path: "/service" },
+      { label: t("home"), path: "/" },
+      { label: t("about"), path: "/about" },
+      { label: t("services"), path: "/service" },
     ];
 
     if (user?.role === "admin") {
-      links.push({ label: "Dashboard", path: "/admin/dashboard" });
+      links.push({ label: t("dashboard"), path: "/admin/dashboard" });
     }
 
     return links;
-  }, [user]);
+  }, [user, t]);
 
   const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
 
@@ -170,6 +172,24 @@ const Navbar = () => {
               gap: 1.5,
             }}
           >
+            <Button
+              onClick={() => setLanguage(language === "en" ? "fr" : "en")}
+              sx={{
+                color: "#fff",
+                border: "1px solid rgba(255,255,255,0.15)",
+                textTransform: "none",
+                fontWeight: 700,
+                borderRadius: "10px",
+                px: 1.6,
+                py: 0.6,
+                minWidth: 60,
+                "&:hover": {
+                  background: "rgba(255,255,255,0.08)",
+                },
+              }}
+            >
+              {language === "en" ? "FR" : "EN"}
+            </Button>
             {user ? (
               <>
                 <IconButton
@@ -209,8 +229,8 @@ const Navbar = () => {
                     },
                   }}
                 >
-                  <MenuItem onClick={handleProfile}>Profile</MenuItem>
-                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  <MenuItem onClick={handleProfile}>{t("profile")}</MenuItem>
+                  <MenuItem onClick={handleLogout}>{t("logout")}</MenuItem>
                 </Menu>
               </>
             ) : (
@@ -234,7 +254,7 @@ const Navbar = () => {
                 }}
                 startIcon={<AccountCircleIcon />}
               >
-                Login
+                {t("login")}
               </Button>
             )}
           </Box>
@@ -288,7 +308,7 @@ const Navbar = () => {
           }}
         >
           <Typography sx={{ fontWeight: 800, fontSize: "1.1rem" }}>
-            Menu
+            {t("menu")}
           </Typography>
 
           <IconButton
@@ -304,6 +324,27 @@ const Navbar = () => {
         </Box>
 
         <Divider sx={{ borderColor: "rgba(255,255,255,0.06)" }} />
+
+        <Box sx={{ px: 1.5, py: 1.5 }}>
+          <Button
+            fullWidth
+            onClick={() => setLanguage(language === "en" ? "fr" : "en")}
+            sx={{
+              color: "#fff",
+              border: "1px solid rgba(255,255,255,0.15)",
+              textTransform: "none",
+              fontWeight: 700,
+              borderRadius: "14px",
+              py: 1.2,
+              background: "rgba(255,255,255,0.03)",
+              "&:hover": {
+                background: "rgba(255,255,255,0.06)",
+              },
+            }}
+          >
+            {language === "en" ? "Français" : "English"}
+          </Button>
+        </Box>
 
         <List sx={{ px: 1.5, py: 1.5 }}>
           {navLinks.map((item) => (
@@ -362,7 +403,7 @@ const Navbar = () => {
                 }}
               >
                 <ListItemText
-                  primary="Profile"
+                  primary={t("profile")}
                   primaryTypographyProps={{
                     fontWeight: 700,
                     color: "#f8fafc",
@@ -382,7 +423,7 @@ const Navbar = () => {
                 }}
               >
                 <ListItemText
-                  primary="Logout"
+                  primary={t("logout")}
                   primaryTypographyProps={{
                     fontWeight: 700,
                     color: "#f8fafc",
@@ -407,7 +448,7 @@ const Navbar = () => {
               }}
             >
               <ListItemText
-                primary="Login"
+                primary={t("login")}
                 primaryTypographyProps={{
                   fontWeight: 700,
                   color: "#f8fafc",

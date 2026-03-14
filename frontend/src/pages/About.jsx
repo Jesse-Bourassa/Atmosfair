@@ -10,38 +10,40 @@ import {
 } from "@mui/material";
 import { Build, Bolt, Favorite, Speed } from "@mui/icons-material";
 import { motion } from "framer-motion";
-
+import { useLanguage } from "../context/LanguageContext";
 const MotionBox = motion(Box);
 
 const About = () => {
+  const { t } = useLanguage();
+
   const values = [
     {
       icon: <Build sx={{ color: "#7fb3ff", fontSize: 38 }} />,
-      title: "Experienced Workmanship",
-      desc: "We focus on quality installations, dependable repairs, and maintenance done with attention to detail.",
+      title: t("experiencedWorkmanship"),
+      desc: t("experiencedWorkmanshipDesc"),
     },
     {
       icon: <Bolt sx={{ color: "#7fb3ff", fontSize: 38 }} />,
-      title: "Reliable Solutions",
-      desc: "Our goal is to provide efficient HVAC systems and service you can rely on in every season.",
+      title: t("reliableSolutions"),
+      desc: t("reliableSolutionsDesc"),
     },
     {
       icon: <Favorite sx={{ color: "#7fb3ff", fontSize: 38 }} />,
-      title: "Customer First",
-      desc: "We believe great service means clear communication, honest work, and real care for your comfort.",
+      title: t("customerFirst"),
+      desc: t("customerFirstDesc"),
     },
     {
       icon: <Speed sx={{ color: "#7fb3ff", fontSize: 38 }} />,
-      title: "Fast Response",
-      desc: "When service is needed, we move quickly to help restore comfort and reduce unnecessary downtime.",
+      title: t("fastResponse"),
+      desc: t("fastResponseDesc"),
     },
   ];
 
   const stats = [
-    { number: "Residential", label: "Home comfort solutions" },
-    { number: "Commercial", label: "Business HVAC support" },
-    { number: "Service", label: "Installation, repair & maintenance" },
-    { number: "Quality", label: "Work built to last" },
+    { number: t("statsResidential"), label: t("statsResidentialLabel") },
+    { number: t("statsCommercial"), label: t("statsCommercialLabel") },
+    { number: t("statsService"), label: t("statsServiceLabel") },
+    { number: t("statsQuality"), label: t("statsQualityLabel") },
   ];
 
   return (
@@ -81,7 +83,7 @@ const About = () => {
                     mb: 2,
                   }}
                 >
-                  About Atmosf&apos;air
+                  {t("aboutAtmosfair")}
                 </Typography>
 
                 <Typography
@@ -94,9 +96,9 @@ const About = () => {
                     mb: 3,
                   }}
                 >
-                  Built on Trust,
+                  {t("builtOnTrust")}
                   <br />
-                  Driven by Comfort
+                  {t("drivenByComfort")}
                 </Typography>
 
                 <Typography
@@ -108,10 +110,7 @@ const About = () => {
                     mb: 4,
                   }}
                 >
-                  Atmosf&apos;air delivers professional heating, cooling, and
-                  ventilation services with a focus on quality workmanship,
-                  reliable solutions, and long-term comfort for homes and
-                  businesses.
+                  {t("aboutIntro")}
                 </Typography>
 
                 <Stack
@@ -137,7 +136,7 @@ const About = () => {
                       },
                     }}
                   >
-                    Explore Our Services
+                    {t("exploreServices")}
                   </Button>
 
                   <Button
@@ -158,7 +157,7 @@ const About = () => {
                       },
                     }}
                   >
-                    Contact Us
+                    {t("contactUs")}
                   </Button>
                 </Stack>
               </MotionBox>
@@ -228,10 +227,10 @@ const About = () => {
             }}
           >
             {[
-              "Licensed & Insured",
-              "Residential & Commercial",
-              "Professional HVAC Service",
-              "Quality-Focused Work",
+              t("licensedInsured"),
+              t("residentialCommercial"),
+              t("professionalHvacService"),
+              t("qualityFocusedWork"),
             ].map((item, index) => (
               <Typography
                 key={index}
@@ -272,16 +271,16 @@ const About = () => {
                     boxShadow: "0 10px 40px rgba(0,0,0,0.35)",
                   }}
                 >
-
-                    <Box
-    sx={{
-      width: "64px",
-      height: "4px",
-      borderRadius: "999px",
-      mb: 2.2,
-      background: "linear-gradient(90deg, #4fa3ff, rgba(79,163,255,0.15))",
-    }}
-  />
+                  <Box
+                    sx={{
+                      width: "64px",
+                      height: "4px",
+                      borderRadius: "999px",
+                      mb: 2.2,
+                      background:
+                        "linear-gradient(90deg, #4fa3ff, rgba(79,163,255,0.15))",
+                    }}
+                  />
 
                   <Typography
                     sx={{
@@ -291,7 +290,7 @@ const About = () => {
                       mb: 2,
                     }}
                   >
-                    Why Atmosf&apos;air
+                    {t("whyAtmosfairTitle")}
                   </Typography>
 
                   <Typography
@@ -301,11 +300,7 @@ const About = () => {
                       fontSize: "1rem",
                     }}
                   >
-                    We understand how important dependable heating and cooling is
-                    to your daily comfort. Whether it’s keeping your home warm
-                    through winter or making sure your AC performs in summer,
-                    our mission is simple: provide service that is professional,
-                    honest, and built around long-term peace of mind.
+                    {t("whyAtmosfairDesc")}
                   </Typography>
                 </Paper>
               </MotionBox>
@@ -330,16 +325,16 @@ const About = () => {
                     boxShadow: "0 10px 40px rgba(0,0,0,0.35)",
                   }}
                 >
-
-                    <Box
-    sx={{
-      width: "64px",
-      height: "4px",
-      borderRadius: "999px",
-      mb: 2.2,
-      background: "linear-gradient(90deg, #4fa3ff, rgba(79,163,255,0.15))",
-    }}
-  />
+                  <Box
+                    sx={{
+                      width: "64px",
+                      height: "4px",
+                      borderRadius: "999px",
+                      mb: 2.2,
+                      background:
+                        "linear-gradient(90deg, #4fa3ff, rgba(79,163,255,0.15))",
+                    }}
+                  />
 
                   <Typography
                     sx={{
@@ -349,7 +344,7 @@ const About = () => {
                       mb: 2,
                     }}
                   >
-                    Our Approach
+                    {t("ourApproach")}
                   </Typography>
 
                   <Typography
@@ -359,11 +354,7 @@ const About = () => {
                       fontSize: "1rem",
                     }}
                   >
-                    We combine strong workmanship with responsive service and
-                    practical solutions. From installation to maintenance and
-                    repairs, every job is handled with care, attention to
-                    detail, and a commitment to doing the work properly the
-                    first time.
+                    {t("ourApproachDesc")}
                   </Typography>
                 </Paper>
               </MotionBox>
@@ -444,7 +435,7 @@ const About = () => {
               mb: 1.5,
             }}
           >
-            What Sets Us Apart
+            {t("whatSetsUsApart")}
           </Typography>
 
           <Typography
@@ -457,7 +448,7 @@ const About = () => {
               mb: 6,
             }}
           >
-            Service Built Around Quality
+            {t("serviceBuiltAroundQuality")}
           </Typography>
 
           <Grid container spacing={3.5}>
@@ -521,85 +512,83 @@ const About = () => {
       {/* CTA */}
       <Box sx={{ py: { xs: 8, md: 10 } }}>
         <Container maxWidth="lg">
-         <Paper
-  elevation={0}
-  sx={{
-    p: { xs: 4, md: 6 },
-    borderRadius: "26px",
-    textAlign: "center",
-    background:
-      "radial-gradient(circle at top left, rgba(79,163,255,0.12), transparent 35%), linear-gradient(135deg, rgba(28,43,63,0.95), rgba(15,24,36,0.94))",
-    border: "1px solid rgba(255,255,255,0.08)",
-    boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
-    position: "relative",
-    overflow: "hidden",
-  }}
->
-  <Box
-    sx={{
-      position: "absolute",
-      top: -80,
-      right: -80,
-      width: 220,
-      height: 220,
-      borderRadius: "50%",
-      background: "rgba(79,163,255,0.08)",
-      filter: "blur(60px)",
-      pointerEvents: "none",
-    }}
-  />
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 4, md: 6 },
+              borderRadius: "26px",
+              textAlign: "center",
+              background:
+                "radial-gradient(circle at top left, rgba(79,163,255,0.12), transparent 35%), linear-gradient(135deg, rgba(28,43,63,0.95), rgba(15,24,36,0.94))",
+              border: "1px solid rgba(255,255,255,0.08)",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                top: -80,
+                right: -80,
+                width: 220,
+                height: 220,
+                borderRadius: "50%",
+                background: "rgba(79,163,255,0.08)",
+                filter: "blur(60px)",
+                pointerEvents: "none",
+              }}
+            />
 
-  <Typography
-    sx={{
-      color: "#f8fafc",
-      fontWeight: 800,
-      fontSize: { xs: "1.8rem", md: "2.6rem" },
-      mb: 2,
-      position: "relative",
-      zIndex: 1,
-    }}
-  >
-    Let&apos;s Improve Your Comfort
-  </Typography>
+            <Typography
+              sx={{
+                color: "#f8fafc",
+                fontWeight: 800,
+                fontSize: { xs: "1.8rem", md: "2.6rem" },
+                mb: 2,
+                position: "relative",
+                zIndex: 1,
+              }}
+            >
+              {t("improveComfort")}
+            </Typography>
 
-  <Typography
-    sx={{
-      color: "#cbd5e1",
-      maxWidth: "760px",
-      mx: "auto",
-      lineHeight: 1.9,
-      mb: 4,
-      fontSize: { xs: "1rem", md: "1.05rem" },
-      position: "relative",
-      zIndex: 1,
-    }}
-  >
-    Whether you need a new installation, routine maintenance, or
-    service for an existing system, Atmosf&apos;air is here to help
-    with dependable HVAC solutions tailored to your needs.
-  </Typography>
+            <Typography
+              sx={{
+                color: "#cbd5e1",
+                maxWidth: "760px",
+                mx: "auto",
+                lineHeight: 1.9,
+                mb: 4,
+                fontSize: { xs: "1rem", md: "1.05rem" },
+                position: "relative",
+                zIndex: 1,
+              }}
+            >
+              {t("improveComfortDesc")}
+            </Typography>
 
-  <Button
-    variant="contained"
-    href="/contact"
-    sx={{
-      px: 4,
-      py: 1.3,
-      borderRadius: "12px",
-      textTransform: "none",
-      fontWeight: 700,
-      background: "linear-gradient(90deg,#3a7bd5,#4fa3ff)",
-      boxShadow: "0 0 18px rgba(0,170,255,0.25)",
-      position: "relative",
-      zIndex: 1,
-      "&:hover": {
-        background: "linear-gradient(90deg,#346ec0,#4597eb)",
-      },
-    }}
-  >
-    Request a Service
-  </Button>
-</Paper>
+            <Button
+              variant="contained"
+              href="/contact"
+              sx={{
+                px: 4,
+                py: 1.3,
+                borderRadius: "12px",
+                textTransform: "none",
+                fontWeight: 700,
+                background: "linear-gradient(90deg,#3a7bd5,#4fa3ff)",
+                boxShadow: "0 0 18px rgba(0,170,255,0.25)",
+                position: "relative",
+                zIndex: 1,
+                "&:hover": {
+                  background: "linear-gradient(90deg,#346ec0,#4597eb)",
+                },
+              }}
+            >
+              {t("requestService")}
+            </Button>
+          </Paper>
         </Container>
       </Box>
     </Box>
