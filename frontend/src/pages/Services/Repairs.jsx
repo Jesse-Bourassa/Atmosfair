@@ -14,6 +14,8 @@ import { DateCalendar } from "@mui/x-date-pickers";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import "dayjs/locale/fr";
+import "dayjs/locale/en";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import BuildIcon from "@mui/icons-material/Build";
@@ -23,19 +25,10 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import BoltIcon from "@mui/icons-material/Bolt";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { apiUrl } from "../../lib/api";
+import { useLanguage } from "../../context/LanguageContext";
+import updateLocale from "dayjs/plugin/updateLocale";
 
 const MotionBox = motion(Box);
-
-const repairOptions = [
-  "Central Air Conditioning",
-  "Ductless Mini-Split",
-  "Furnace",
-  "Heat Pump",
-  "Refrigeration",
-  "Suspended Unit",
-  "Roof Top",
-  "Natural Gas",
-];
 
 const filledInputStyles = {
   "& .MuiFilledInput-root": {
@@ -70,6 +63,9 @@ const filledInputStyles = {
 };
 
 const Repair = () => {
+  const { t, language } = useLanguage();
+  const navigate = useNavigate();
+
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [selectedTime, setSelectedTime] = useState(null);
   const [repairType, setRepairType] = useState("");
@@ -85,7 +81,26 @@ const Repair = () => {
     notes: "",
   });
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    dayjs.locale(language === "fr" ? "fr" : "en");
+  }, [language]);
+
+  dayjs.extend(updateLocale);
+
+  dayjs.updateLocale("en", {
+    weekStart: 1,
+  });
+
+  const repairOptions = [
+    t("equipmentCentralAirConditioning"),
+    t("equipmentDuctlessMiniSplit"),
+    t("equipmentFurnace"),
+    t("equipmentHeatPump"),
+    t("equipmentRefrigeration"),
+    t("equipmentSuspendedUnit"),
+    t("equipmentRoofTop"),
+    t("equipmentNaturalGas"),
+  ];
 
   useEffect(() => {
     if (selectedDate && repairType) {
@@ -114,12 +129,12 @@ const Repair = () => {
         setAvailableSlots(data);
       } else {
         setAvailableSlots([]);
-        alert(data.message || "Failed to fetch available slots.");
+        alert(data.message || t("failedToFetchSlots"));
       }
     } catch (err) {
       console.error("Error fetching slots:", err);
       setAvailableSlots([]);
-      alert("Error fetching available slots.");
+      alert(t("errorFetchingSlots"));
     } finally {
       setLoadingSlots(false);
     }
@@ -137,7 +152,7 @@ const Repair = () => {
       !selectedDate ||
       !selectedTime
     ) {
-      alert("Please fill in all required fields.");
+      alert(t("fillRequiredFields"));
       return;
     }
 
@@ -163,15 +178,15 @@ const Repair = () => {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Repair request submitted successfully!");
+        alert(t("repairSubmitted"));
         setSelectedTime(null);
         navigate("/");
       } else {
-        alert(data.message || "Failed to schedule.");
+        alert(data.message || t("failedToSchedule"));
       }
     } catch (err) {
       console.error("Error scheduling:", err);
-      alert("Error scheduling appointment.");
+      alert(t("errorSchedulingAppointment"));
     } finally {
       setSubmitting(false);
     }
@@ -199,7 +214,7 @@ const Repair = () => {
               mb: 1.5,
             }}
           >
-            Repair Service
+            {t("repairService")}
           </Typography>
 
           <Typography
@@ -211,7 +226,7 @@ const Repair = () => {
               mb: 2,
             }}
           >
-            Book an HVAC Repair
+            {t("bookRepair")}
           </Typography>
 
           <Typography
@@ -223,8 +238,7 @@ const Repair = () => {
               fontSize: { xs: "1rem", md: "1.04rem" },
             }}
           >
-            Choose your equipment type, enter your information, pick a date, and
-            select an available time slot.
+            {t("bookingIntro")}
           </Typography>
         </Box>
 
@@ -248,10 +262,10 @@ const Repair = () => {
             }}
           >
             {[
-              "Fast diagnostics",
-              "Reliable scheduling",
-              "Residential & Commercial",
-              "Professional HVAC service",
+              t("fastDiagnostics"),
+              t("reliableScheduling"),
+              t("residentialCommercial"),
+              t("professionalHvacService"),
             ].map((item) => (
               <Typography
                 key={item}
@@ -303,7 +317,7 @@ const Repair = () => {
                         fontSize: "1.25rem",
                       }}
                     >
-                      Customer Information
+                      {t("customerInformation")}
                     </Typography>
                   </Box>
 
@@ -315,14 +329,13 @@ const Repair = () => {
                       fontSize: "0.96rem",
                     }}
                   >
-                    Enter your contact details so we can confirm your
-                    appointment.
+                    {t("enterContactDetails")}
                   </Typography>
 
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>
                       <TextField
-                        label="Full Name"
+                        label={t("fullName")}
                         name="name"
                         fullWidth
                         required
@@ -336,7 +349,7 @@ const Repair = () => {
 
                     <Grid item xs={12} md={6}>
                       <TextField
-                        label="Phone Number"
+                        label={t("phoneNumber")}
                         name="phone"
                         fullWidth
                         required
@@ -350,7 +363,7 @@ const Repair = () => {
 
                     <Grid item xs={12}>
                       <TextField
-                        label="Email"
+                        label={t("email")}
                         name="email"
                         type="email"
                         fullWidth
@@ -365,7 +378,7 @@ const Repair = () => {
 
                     <Grid item xs={12}>
                       <TextField
-                        label="Service Address"
+                        label={t("serviceAddress")}
                         name="address"
                         fullWidth
                         required
@@ -379,7 +392,7 @@ const Repair = () => {
 
                     <Grid item xs={12}>
                       <TextField
-                        label="Additional Notes"
+                        label={t("additionalNotes")}
                         name="notes"
                         fullWidth
                         multiline
@@ -388,7 +401,7 @@ const Repair = () => {
                         value={customer.notes}
                         onChange={handleCustomerChange}
                         InputLabelProps={{ shrink: true }}
-                        placeholder="Optional details about the issue, symptoms, or access instructions."
+                        placeholder={t("installationNotesPlaceholder")}
                         sx={filledInputStyles}
                       />
                     </Grid>
@@ -411,7 +424,7 @@ const Repair = () => {
                         fontSize: "1.25rem",
                       }}
                     >
-                      Repair Details
+                      {t("repairDetails")}
                     </Typography>
                   </Box>
 
@@ -423,12 +436,12 @@ const Repair = () => {
                       fontSize: "0.96rem",
                     }}
                   >
-                    Select the type of system that needs repair to continue.
+                    {t("repairDetailsIntro")}
                   </Typography>
 
                   <TextField
                     select
-                    label="Equipment Type"
+                    label={t("equipmentType")}
                     fullWidth
                     value={repairType}
                     onChange={(e) => setRepairType(e.target.value)}
@@ -437,7 +450,7 @@ const Repair = () => {
                     variant="filled"
                     sx={{ ...filledInputStyles, mb: 3 }}
                   >
-                    <MenuItem value="">Select an option</MenuItem>
+                    <MenuItem value="">{t("selectOption")}</MenuItem>
                     {repairOptions.map((option) => (
                       <MenuItem key={option} value={option}>
                         {option}
@@ -459,11 +472,14 @@ const Repair = () => {
                           sx={{ color: "#7fb3ff", fontSize: 20 }}
                         />
                         <Typography sx={{ color: "#f8fafc", fontWeight: 700 }}>
-                          Select Date
+                          {t("selectDate")}
                         </Typography>
                       </Box>
 
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <LocalizationProvider
+                        dateAdapter={AdapterDayjs}
+                        adapterLocale={language === "fr" ? "fr" : "en"}
+                      >
                         <DateCalendar
                           value={selectedDate}
                           onChange={(val) => setSelectedDate(val)}
@@ -526,7 +542,7 @@ const Repair = () => {
                           sx={{ color: "#7fb3ff", fontSize: 20 }}
                         />
                         <Typography sx={{ color: "#f8fafc", fontWeight: 700 }}>
-                          Select Time
+                          {t("selectTime")}
                         </Typography>
                       </Box>
 
@@ -551,8 +567,7 @@ const Repair = () => {
                           <Typography
                             sx={{ color: "#94a3b8", lineHeight: 1.8 }}
                           >
-                            Select an equipment type first to see available time
-                            slots.
+                            {t("selectEquipmentFirst")}
                           </Typography>
                         ) : loadingSlots ? (
                           <Box
@@ -608,7 +623,7 @@ const Repair = () => {
                           <Typography
                             sx={{ color: "#f87171", lineHeight: 1.8 }}
                           >
-                            No available slots for this day.
+                            {t("noAvailableSlots")}
                           </Typography>
                         )}
                       </Box>
@@ -647,7 +662,7 @@ const Repair = () => {
                       mb: 1.5,
                     }}
                   >
-                    Appointment Summary
+                    {t("appointmentSummary")}
                   </Typography>
 
                   <Typography
@@ -658,8 +673,7 @@ const Repair = () => {
                       mb: 2.5,
                     }}
                   >
-                    Review your booking details before confirming your repair
-                    appointment.
+                    {t("repairSummaryIntro")}
                   </Typography>
 
                   <Box
@@ -682,10 +696,10 @@ const Repair = () => {
                       <Typography
                         sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
                       >
-                        Customer Name
+                        {t("customerName")}
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
-                        {customer.name || "Not entered yet"}
+                        {customer.name || t("notEnteredYet")}
                       </Typography>
                     </Paper>
 
@@ -701,10 +715,10 @@ const Repair = () => {
                       <Typography
                         sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
                       >
-                        Phone Number
+                        {t("phoneNumber")}
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
-                        {customer.phone || "Not entered yet"}
+                        {customer.phone || t("notEnteredYet")}
                       </Typography>
                     </Paper>
 
@@ -720,10 +734,10 @@ const Repair = () => {
                       <Typography
                         sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
                       >
-                        Equipment Type
+                        {t("equipmentType")}
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
-                        {repairType || "Not selected yet"}
+                        {repairType || t("notSelectedYet")}
                       </Typography>
                     </Paper>
 
@@ -739,12 +753,18 @@ const Repair = () => {
                       <Typography
                         sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
                       >
-                        Date
+                        {t("date")}
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
                         {selectedDate
-                          ? selectedDate.format("MMMM D, YYYY")
-                          : "Not selected yet"}
+                          ? selectedDate
+                              .locale(language === "fr" ? "fr" : "en")
+                              .format(
+                                language === "fr"
+                                  ? "D MMMM YYYY"
+                                  : "MMMM D, YYYY",
+                              )
+                          : t("notSelectedYet")}
                       </Typography>
                     </Paper>
 
@@ -760,10 +780,10 @@ const Repair = () => {
                       <Typography
                         sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
                       >
-                        Time Slot
+                        {t("timeSlot")}
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
-                        {selectedTime || "Not selected yet"}
+                        {selectedTime || t("notSelectedYet")}
                       </Typography>
                     </Paper>
                   </Box>
@@ -773,7 +793,7 @@ const Repair = () => {
                   >
                     <Chip
                       icon={<BoltIcon />}
-                      label="Fast response"
+                      label={t("fastResponse")}
                       sx={{
                         color: "#dbeafe",
                         background: "rgba(127,179,255,0.12)",
@@ -782,7 +802,7 @@ const Repair = () => {
                     />
                     <Chip
                       icon={<CheckCircleIcon />}
-                      label="Professional service"
+                      label={t("professionalService")}
                       sx={{
                         color: "#dbeafe",
                         background: "rgba(127,179,255,0.12)",
@@ -823,7 +843,7 @@ const Repair = () => {
                         },
                       }}
                     >
-                      {submitting ? "Scheduling..." : "Schedule Appointment"}
+                      {submitting ? t("scheduling") : t("scheduleAppointment")}
                     </Button>
                   </Box>
                 </Paper>

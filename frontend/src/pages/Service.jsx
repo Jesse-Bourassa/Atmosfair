@@ -11,37 +11,37 @@ import {
   VolumeUp,
   Air,
 } from "@mui/icons-material";
-
+import { useLanguage } from "../context/LanguageContext";
 const MotionBox = motion(Box);
 
 const Services = () => {
   const navigate = useNavigate();
-
+  const { t } = useLanguage();
   const handleServiceClick = (path) => () => {
     navigate(path);
   };
 
   const services = [
     {
-      title: "Repair",
-      subtitle: "Fix issues quickly",
-      desc: "Fast diagnostics and dependable HVAC repairs to restore comfort and performance.",
+      title: t("serviceRepairTitle"),
+      subtitle: t("serviceRepairSubtitle"),
+      desc: t("serviceRepairDesc"),
       image: "/atmo.jpeg",
       link: "/repairs",
       icon: <Build sx={{ color: "#7fb3ff", fontSize: 30 }} />,
     },
     {
-      title: "Maintenance",
-      subtitle: "Protect your system",
-      desc: "Routine service that helps extend equipment life and keep everything running efficiently.",
+      title: t("serviceMaintenanceTitle"),
+      subtitle: t("serviceMaintenanceSubtitle"),
+      desc: t("serviceMaintenanceDesc"),
       image: "/atmo.jpeg",
       link: "/maintenance",
       icon: <Tune sx={{ color: "#7fb3ff", fontSize: 30 }} />,
     },
     {
-      title: "Installation",
-      subtitle: "New system setup",
-      desc: "Professional HVAC installation for new systems or replacements done with care.",
+      title: t("serviceInstallationTitle"),
+      subtitle: t("serviceInstallationSubtitle"),
+      desc: t("serviceInstallationDesc"),
       image: "/atmo.jpeg",
       link: "/installation",
       icon: <Engineering sx={{ color: "#7fb3ff", fontSize: 30 }} />,
@@ -50,26 +50,26 @@ const Services = () => {
 
   const commonProblems = [
     {
-      title: "AC Not Cooling",
-      desc: "Your system is running but the air is not cold enough.",
+      title: t("problemAcNotCoolingTitle"),
+      desc: t("problemAcNotCoolingDesc"),
       icon: <AcUnit sx={{ color: "#7fb3ff", fontSize: 30 }} />,
       link: "/repairs",
     },
     {
-      title: "Furnace Not Heating",
-      desc: "Your home is not warming up properly during colder days.",
+      title: t("problemFurnaceNotHeatingTitle"),
+      desc: t("problemFurnaceNotHeatingDesc"),
       icon: <Whatshot sx={{ color: "#7fb3ff", fontSize: 30 }} />,
       link: "/repairs",
     },
     {
-      title: "Strange Noises",
-      desc: "Buzzing, rattling, or banging sounds coming from the unit.",
+      title: t("problemStrangeNoisesTitle"),
+      desc: t("problemStrangeNoisesDesc"),
       icon: <VolumeUp sx={{ color: "#7fb3ff", fontSize: 30 }} />,
       link: "/repairs",
     },
     {
-      title: "Poor Airflow",
-      desc: "Some rooms feel weak airflow or uneven comfort levels.",
+      title: t("problemPoorAirflowTitle"),
+      desc: t("problemPoorAirflowDesc"),
       icon: <Air sx={{ color: "#7fb3ff", fontSize: 30 }} />,
       link: "/repairs",
     },
@@ -98,7 +98,7 @@ const Services = () => {
               mb: 1.5,
             }}
           >
-            Our Services
+            {t("ourServices")}
           </Typography>
 
           <Typography
@@ -110,7 +110,7 @@ const Services = () => {
               mb: 2,
             }}
           >
-            How Can We Help?
+            {t("howCanWeHelp")}
           </Typography>
 
           <Typography
@@ -122,8 +122,7 @@ const Services = () => {
               fontSize: { xs: "1rem", md: "1.05rem" },
             }}
           >
-            Select the HVAC service that best matches your needs. We make it
-            easy to get the right help for your home or business.
+            {t("servicesIntro")}
           </Typography>
         </Box>
 
@@ -220,7 +219,7 @@ const Services = () => {
                         },
                       }}
                     >
-                      Select Service
+                      {t("selectService")}
                     </Button>
                   </Box>
                 </Paper>
@@ -249,10 +248,10 @@ const Services = () => {
             }}
           >
             {[
-              "Licensed & Insured",
-              "Residential & Commercial",
-              "Reliable Scheduling",
-              "Professional Service",
+              t("licensedInsured"),
+              t("residentialCommercial"),
+              t("reliableScheduling"),
+              t("professionalService"),
             ].map((item, index) => (
               <Typography
                 key={index}
@@ -282,7 +281,7 @@ const Services = () => {
                 mb: 1.5,
               }}
             >
-              Not Sure Which Service?
+              {t("notSureWhichService")}
             </Typography>
 
             <Typography
@@ -294,7 +293,7 @@ const Services = () => {
                 mb: 2,
               }}
             >
-              Common HVAC Problems
+              {t("commonHvacProblems")}
             </Typography>
 
             <Typography
@@ -306,8 +305,7 @@ const Services = () => {
                 fontSize: { xs: "1rem", md: "1.03rem" },
               }}
             >
-              If you are not sure which service to choose, start with the issue
-              you are experiencing and we’ll guide you in the right direction.
+              {t("commonHvacProblems")}
             </Typography>
           </Box>
 
@@ -387,7 +385,7 @@ const Services = () => {
                         },
                       }}
                     >
-                      Get Help
+                      {t("getHelp")}
                     </Button>
                   </Paper>
                 </MotionBox>

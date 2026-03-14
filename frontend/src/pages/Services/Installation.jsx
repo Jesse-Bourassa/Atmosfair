@@ -23,6 +23,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import BoltIcon from "@mui/icons-material/Bolt";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { apiUrl } from "../../lib/api";
+import { useLanguage } from "../../context/LanguageContext";
 
 const MotionBox = motion(Box);
 
@@ -76,6 +77,8 @@ const Installation = () => {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const { t, language } = useLanguage();
 
   const [customer, setCustomer] = useState({
     name: "",

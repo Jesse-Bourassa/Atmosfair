@@ -14,28 +14,20 @@ import { DateCalendar } from "@mui/x-date-pickers";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import "dayjs/locale/fr";
+import "dayjs/locale/en";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import TuneIcon from "@mui/icons-material/Tune";
+import EngineeringIcon from "@mui/icons-material/Engineering";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import BoltIcon from "@mui/icons-material/Bolt";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import { apiUrl } from "../../lib/api";
+import { useLanguage } from "../../context/LanguageContext";
 
 const MotionBox = motion(Box);
-
-const maintenanceOptions = [
-  "Central Air Conditioning",
-  "Ductless Mini-Split",
-  "Furnace",
-  "Heat Pump",
-  "Refrigeration",
-  "Suspended Unit",
-  "Roof Top",
-  "Natural Gas",
-];
 
 const filledInputStyles = {
   "& .MuiFilledInput-root": {
@@ -69,10 +61,13 @@ const filledInputStyles = {
   },
 };
 
-const Maintenance = () => {
+const Installation = () => {
+  const { t, language } = useLanguage();
+  const navigate = useNavigate();
+
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [selectedTime, setSelectedTime] = useState(null);
-  const [maintType, setMaintType] = useState("");
+  const [installType, setInstallType] = useState("");
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -85,16 +80,29 @@ const Maintenance = () => {
     notes: "",
   });
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    dayjs.locale(language === "fr" ? "fr" : "en");
+  }, [language]);
+
+  const installationOptions = [
+    t("equipmentCentralAirConditioning"),
+    t("equipmentDuctlessMiniSplit"),
+    t("equipmentFurnaceInstallation"),
+    t("equipmentHeatPump"),
+    t("equipmentRefrigeration"),
+    t("equipmentSuspendedUnit"),
+    t("equipmentRoofTop"),
+    t("equipmentNaturalGas"),
+  ];
 
   useEffect(() => {
-    if (selectedDate && maintType) {
-      fetchAvailableSlots(selectedDate.format("YYYY-MM-DD"), "maintenance");
+    if (selectedDate && installType) {
+      fetchAvailableSlots(selectedDate.format("YYYY-MM-DD"), "installation");
     } else {
       setAvailableSlots([]);
       setSelectedTime(null);
     }
-  }, [selectedDate, maintType]);
+  }, [selectedDate, installType]);
 
   const handleCustomerChange = (e) => {
     setCustomer({ ...customer, [e.target.name]: e.target.value });
@@ -105,21 +113,21 @@ const Maintenance = () => {
     setSelectedTime(null);
 
     try {
-      const res = await fetch(
+      const response = await fetch(
         apiUrl(`/api/schedule/available-slots?date=${date}&type=${type}`),
       );
-      const data = await res.json();
+      const data = await response.json();
 
-      if (res.ok) {
+      if (response.ok) {
         setAvailableSlots(data);
       } else {
         setAvailableSlots([]);
-        alert(data.message || "Failed to fetch available slots.");
+        alert(data.message || t("failedToFetchSlots"));
       }
     } catch (err) {
       console.error("Error fetching slots:", err);
       setAvailableSlots([]);
-      alert("Error fetching available slots.");
+      alert(t("errorFetchingSlots"));
     } finally {
       setLoadingSlots(false);
     }
@@ -133,23 +141,23 @@ const Maintenance = () => {
       !customer.phone.trim() ||
       !customer.email.trim() ||
       !customer.address.trim() ||
-      !maintType ||
+      !installType ||
       !selectedDate ||
       !selectedTime
     ) {
-      alert("Please fill in all required fields.");
+      alert(t("fillRequiredFields"));
       return;
     }
 
     try {
       setSubmitting(true);
 
-      const res = await fetch(apiUrl(`/api/schedule`), {
+      const response = await fetch(apiUrl(`/api/schedule`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          type: "maintenance",
-          equipmentType: maintType,
+          type: "installation",
+          equipmentType: installType,
           date: selectedDate.format("YYYY-MM-DD"),
           time: selectedTime,
           name: customer.name.trim(),
@@ -160,17 +168,17 @@ const Maintenance = () => {
         }),
       });
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (res.ok) {
-        alert("Maintenance request submitted successfully!");
+      if (response.ok) {
+        alert(t("installationSubmitted"));
         navigate("/");
       } else {
-        alert(data.message || "Failed to schedule.");
+        alert(data.message || t("failedToSchedule"));
       }
     } catch (err) {
       console.error("Error scheduling:", err);
-      alert("Error scheduling appointment.");
+      alert(t("errorSchedulingAppointment"));
     } finally {
       setSubmitting(false);
     }
@@ -198,7 +206,7 @@ const Maintenance = () => {
               mb: 1.5,
             }}
           >
-            Maintenance Service
+            {t("installationService")}
           </Typography>
 
           <Typography
@@ -210,7 +218,7 @@ const Maintenance = () => {
               mb: 2,
             }}
           >
-            Book HVAC Maintenance
+            {t("bookInstallation")}
           </Typography>
 
           <Typography
@@ -222,8 +230,7 @@ const Maintenance = () => {
               fontSize: { xs: "1rem", md: "1.04rem" },
             }}
           >
-            Choose your equipment type, enter your information, pick a date, and
-            select an available time slot.
+            {t("bookingIntro")}
           </Typography>
         </Box>
 
@@ -247,10 +254,10 @@ const Maintenance = () => {
             }}
           >
             {[
-              "Preventive care",
-              "Reliable scheduling",
-              "Residential & Commercial",
-              "Professional HVAC service",
+              t("professionalSetup"),
+              t("reliableScheduling"),
+              t("residentialCommercial"),
+              t("highQualityService"),
             ].map((item) => (
               <Typography
                 key={item}
@@ -302,7 +309,7 @@ const Maintenance = () => {
                         fontSize: "1.25rem",
                       }}
                     >
-                      Customer Information
+                      {t("customerInformation")}
                     </Typography>
                   </Box>
 
@@ -314,14 +321,13 @@ const Maintenance = () => {
                       fontSize: "0.96rem",
                     }}
                   >
-                    Enter your contact details so we can confirm your
-                    appointment.
+                    {t("enterContactDetails")}
                   </Typography>
 
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>
                       <TextField
-                        label="Full Name"
+                        label={t("fullName")}
                         name="name"
                         fullWidth
                         required
@@ -335,7 +341,7 @@ const Maintenance = () => {
 
                     <Grid item xs={12} md={6}>
                       <TextField
-                        label="Phone Number"
+                        label={t("phoneNumber")}
                         name="phone"
                         fullWidth
                         required
@@ -349,7 +355,7 @@ const Maintenance = () => {
 
                     <Grid item xs={12}>
                       <TextField
-                        label="Email"
+                        label={t("email")}
                         name="email"
                         type="email"
                         fullWidth
@@ -364,7 +370,7 @@ const Maintenance = () => {
 
                     <Grid item xs={12}>
                       <TextField
-                        label="Service Address"
+                        label={t("serviceAddress")}
                         name="address"
                         fullWidth
                         required
@@ -378,7 +384,7 @@ const Maintenance = () => {
 
                     <Grid item xs={12}>
                       <TextField
-                        label="Additional Notes"
+                        label={t("additionalNotes")}
                         name="notes"
                         fullWidth
                         multiline
@@ -387,7 +393,7 @@ const Maintenance = () => {
                         value={customer.notes}
                         onChange={handleCustomerChange}
                         InputLabelProps={{ shrink: true }}
-                        placeholder="Optional details about the system, issue, access instructions, etc."
+                        placeholder={t("installationNotesPlaceholder")}
                         sx={filledInputStyles}
                       />
                     </Grid>
@@ -402,7 +408,7 @@ const Maintenance = () => {
                       mb: 2,
                     }}
                   >
-                    <TuneIcon sx={{ color: "#7fb3ff" }} />
+                    <EngineeringIcon sx={{ color: "#7fb3ff" }} />
                     <Typography
                       sx={{
                         color: "#f8fafc",
@@ -410,7 +416,7 @@ const Maintenance = () => {
                         fontSize: "1.25rem",
                       }}
                     >
-                      Maintenance Details
+                      {t("installationDetails")}
                     </Typography>
                   </Box>
 
@@ -422,26 +428,22 @@ const Maintenance = () => {
                       fontSize: "0.96rem",
                     }}
                   >
-                    Select the type of system that needs maintenance to
-                    continue.
+                    {t("installationDetailsIntro")}
                   </Typography>
 
                   <TextField
                     select
-                    label="Equipment Type"
+                    label={t("equipmentType")}
                     fullWidth
-                    value={maintType}
-                    onChange={(e) => setMaintType(e.target.value)}
+                    value={installType}
+                    onChange={(e) => setInstallType(e.target.value)}
                     required
                     InputLabelProps={{ shrink: true }}
                     variant="filled"
-                    sx={{
-                      ...filledInputStyles,
-                      mb: 3,
-                    }}
+                    sx={{ ...filledInputStyles, mb: 3 }}
                   >
-                    <MenuItem value="">Select an option</MenuItem>
-                    {maintenanceOptions.map((option) => (
+                    <MenuItem value="">{t("selectOption")}</MenuItem>
+                    {installationOptions.map((option) => (
                       <MenuItem key={option} value={option}>
                         {option}
                       </MenuItem>
@@ -462,14 +464,17 @@ const Maintenance = () => {
                           sx={{ color: "#7fb3ff", fontSize: 20 }}
                         />
                         <Typography sx={{ color: "#f8fafc", fontWeight: 700 }}>
-                          Select Date
+                          {t("selectDate")}
                         </Typography>
                       </Box>
 
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <LocalizationProvider
+                        dateAdapter={AdapterDayjs}
+                        adapterLocale={language === "fr" ? "fr" : "en"}
+                      >
                         <DateCalendar
                           value={selectedDate}
-                          onChange={(val) => setSelectedDate(val)}
+                          onChange={(newValue) => setSelectedDate(newValue)}
                           disablePast
                           sx={{
                             width: "100%",
@@ -529,7 +534,7 @@ const Maintenance = () => {
                           sx={{ color: "#7fb3ff", fontSize: 20 }}
                         />
                         <Typography sx={{ color: "#f8fafc", fontWeight: 700 }}>
-                          Select Time
+                          {t("selectTime")}
                         </Typography>
                       </Box>
 
@@ -550,12 +555,11 @@ const Maintenance = () => {
                           },
                         }}
                       >
-                        {!maintType ? (
+                        {!installType ? (
                           <Typography
                             sx={{ color: "#94a3b8", lineHeight: 1.8 }}
                           >
-                            Select an equipment type first to see available time
-                            slots.
+                            {t("selectEquipmentFirst")}
                           </Typography>
                         ) : loadingSlots ? (
                           <Box
@@ -611,7 +615,7 @@ const Maintenance = () => {
                           <Typography
                             sx={{ color: "#f87171", lineHeight: 1.8 }}
                           >
-                            No available slots for this day.
+                            {t("noAvailableSlots")}
                           </Typography>
                         )}
                       </Box>
@@ -650,7 +654,7 @@ const Maintenance = () => {
                       mb: 1.5,
                     }}
                   >
-                    Appointment Summary
+                    {t("appointmentSummary")}
                   </Typography>
 
                   <Typography
@@ -661,8 +665,7 @@ const Maintenance = () => {
                       mb: 2.5,
                     }}
                   >
-                    Review your booking details before confirming your
-                    maintenance appointment.
+                    {t("installationSummaryIntro")}
                   </Typography>
 
                   <Box
@@ -685,10 +688,10 @@ const Maintenance = () => {
                       <Typography
                         sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
                       >
-                        Customer Name
+                        {t("customerName")}
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
-                        {customer.name || "Not entered yet"}
+                        {customer.name || t("notEnteredYet")}
                       </Typography>
                     </Paper>
 
@@ -704,10 +707,10 @@ const Maintenance = () => {
                       <Typography
                         sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
                       >
-                        Phone Number
+                        {t("phoneNumber")}
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
-                        {customer.phone || "Not entered yet"}
+                        {customer.phone || t("notEnteredYet")}
                       </Typography>
                     </Paper>
 
@@ -723,10 +726,10 @@ const Maintenance = () => {
                       <Typography
                         sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
                       >
-                        Equipment Type
+                        {t("equipmentType")}
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
-                        {maintType || "Not selected yet"}
+                        {installType || t("notSelectedYet")}
                       </Typography>
                     </Paper>
 
@@ -742,12 +745,18 @@ const Maintenance = () => {
                       <Typography
                         sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
                       >
-                        Date
+                        {t("date")}
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
                         {selectedDate
-                          ? selectedDate.format("MMMM D, YYYY")
-                          : "Not selected yet"}
+                          ? selectedDate
+                              .locale(language === "fr" ? "fr" : "en")
+                              .format(
+                                language === "fr"
+                                  ? "D MMMM YYYY"
+                                  : "MMMM D, YYYY",
+                              )
+                          : t("notSelectedYet")}
                       </Typography>
                     </Paper>
 
@@ -763,10 +772,10 @@ const Maintenance = () => {
                       <Typography
                         sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
                       >
-                        Time Slot
+                        {t("timeSlot")}
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
-                        {selectedTime || "Not selected yet"}
+                        {selectedTime || t("notSelectedYet")}
                       </Typography>
                     </Paper>
                   </Box>
@@ -776,7 +785,7 @@ const Maintenance = () => {
                   >
                     <Chip
                       icon={<BoltIcon />}
-                      label="Preventive care"
+                      label={t("professionalSetup")}
                       sx={{
                         color: "#dbeafe",
                         background: "rgba(127,179,255,0.12)",
@@ -785,7 +794,7 @@ const Maintenance = () => {
                     />
                     <Chip
                       icon={<CheckCircleIcon />}
-                      label="Professional service"
+                      label={t("highQualityService")}
                       sx={{
                         color: "#dbeafe",
                         background: "rgba(127,179,255,0.12)",
@@ -803,7 +812,7 @@ const Maintenance = () => {
                         !customer.phone.trim() ||
                         !customer.email.trim() ||
                         !customer.address.trim() ||
-                        !maintType ||
+                        !installType ||
                         !selectedDate ||
                         !selectedTime ||
                         submitting
@@ -826,7 +835,7 @@ const Maintenance = () => {
                         },
                       }}
                     >
-                      {submitting ? "Scheduling..." : "Schedule Appointment"}
+                      {submitting ? t("scheduling") : t("scheduleAppointment")}
                     </Button>
                   </Box>
                 </Paper>
@@ -839,4 +848,4 @@ const Maintenance = () => {
   );
 };
 
-export default Maintenance;
+export default Installation;

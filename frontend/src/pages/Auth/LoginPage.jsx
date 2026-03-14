@@ -10,8 +10,11 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { apiUrl } from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
+import { useLanguage } from "../../context/LanguageContext";
 
 const LoginPage = () => {
+  const { t } = useLanguage();
+
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -39,7 +42,7 @@ const LoginPage = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Login failed");
+        throw new Error(data.message || t("loginFailed"));
       }
 
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -47,7 +50,7 @@ const LoginPage = () => {
       localStorage.setItem("userId", data.user.id);
       setUser(data.user);
 
-      alert("Login successful!");
+      alert(t("loginSuccessful"));
       navigate("/");
     } catch (err) {
       alert(err.message);
@@ -150,7 +153,7 @@ const LoginPage = () => {
               mb: 0.8,
             }}
           >
-            Account Access
+            {t("accountAccess")}
           </Typography>
 
           <Typography
@@ -163,7 +166,7 @@ const LoginPage = () => {
               mb: 0.8,
             }}
           >
-            Welcome Back
+            {t("welcomeBack")}
           </Typography>
 
           <Typography
@@ -178,16 +181,15 @@ const LoginPage = () => {
               px: { xs: 0.5, sm: 0 },
             }}
           >
-            Sign in to access your Atmosfair account and manage your HVAC
-            services with ease.
+            {t("loginIntro")}
           </Typography>
 
           <form onSubmit={handleSubmit}>
             <TextField
-              label="Email"
+              label={t("email")}
               name="email"
               type="email"
-              placeholder="Enter your email"
+              placeholder={t("enterEmail")}
               value={form.email}
               onChange={handleChange}
               fullWidth
@@ -241,10 +243,10 @@ const LoginPage = () => {
             />
 
             <TextField
-              label="Password"
+              label={t("password")}
               name="password"
               type="password"
-              placeholder="Enter your password"
+              placeholder={t("enterPassword")}
               value={form.password}
               onChange={handleChange}
               fullWidth
@@ -317,7 +319,7 @@ const LoginPage = () => {
                 },
               }}
             >
-              <Link to="/forgot-password">Forgot password?</Link>
+              <Link to="/forgot-password">{t("forgotPassword")}</Link>
             </Typography>
 
             <Button
@@ -337,7 +339,7 @@ const LoginPage = () => {
                 },
               }}
             >
-              Log In
+              {t("logIn")}
             </Button>
 
             <Typography
@@ -350,7 +352,7 @@ const LoginPage = () => {
                 lineHeight: 1.6,
               }}
             >
-              Don’t have an account?{" "}
+              {t("dontHaveAccount")}{" "}
               <Box
                 component={Link}
                 to="/signup"
@@ -365,7 +367,7 @@ const LoginPage = () => {
                   },
                 }}
               >
-                Sign up here
+                {t("signUpHere")}
               </Box>
             </Typography>
           </form>
