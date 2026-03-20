@@ -7,7 +7,7 @@ const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users"); 
 const scheduleRoutes = require("./routes/schedule");
 const deviceRoutes = require("./routes/deviceRoutes");
-
+const pushRoutes = require("./routes/pushRoutes");
 
 const app = express();
 app.use(express.json());
@@ -27,6 +27,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);            
 app.use("/api/schedule", scheduleRoutes);
 app.use("/api/devices", deviceRoutes);
+app.use("/api/push", pushRoutes);
 
 app.get("/", (req, res) => {
   res.send("HVAC Scheduling API is runnings");
