@@ -18,7 +18,7 @@ import "dayjs/locale/fr";
 import "dayjs/locale/en";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import EngineeringIcon from "@mui/icons-material/Engineering";
+import TuneIcon from "@mui/icons-material/Tune";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
@@ -61,13 +61,13 @@ const filledInputStyles = {
   },
 };
 
-const Installation = () => {
+const Maintenance = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
 
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [selectedTime, setSelectedTime] = useState(null);
-  const [installType, setInstallType] = useState("");
+  const [maintenanceType, setMaintenanceType] = useState("");
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -84,10 +84,10 @@ const Installation = () => {
     dayjs.locale(language === "fr" ? "fr" : "en");
   }, [language]);
 
-  const installationOptions = [
+  const maintenanceOptions = [
     t("equipmentCentralAirConditioning"),
     t("equipmentDuctlessMiniSplit"),
-    t("equipmentFurnaceInstallation"),
+    t("equipmentFurnace"),
     t("equipmentHeatPump"),
     t("equipmentRefrigeration"),
     t("equipmentSuspendedUnit"),
@@ -96,13 +96,13 @@ const Installation = () => {
   ];
 
   useEffect(() => {
-    if (selectedDate && installType) {
-      fetchAvailableSlots(selectedDate.format("YYYY-MM-DD"), "installation");
+    if (selectedDate && maintenanceType) {
+      fetchAvailableSlots(selectedDate.format("YYYY-MM-DD"), "maintenance");
     } else {
       setAvailableSlots([]);
       setSelectedTime(null);
     }
-  }, [selectedDate, installType]);
+  }, [selectedDate, maintenanceType]);
 
   const handleCustomerChange = (e) => {
     setCustomer({ ...customer, [e.target.name]: e.target.value });
@@ -141,7 +141,7 @@ const Installation = () => {
       !customer.phone.trim() ||
       !customer.email.trim() ||
       !customer.address.trim() ||
-      !installType ||
+      !maintenanceType ||
       !selectedDate ||
       !selectedTime
     ) {
@@ -156,8 +156,8 @@ const Installation = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          type: "installation",
-          equipmentType: installType,
+          type: "maintenance",
+          equipmentType: maintenanceType,
           date: selectedDate.format("YYYY-MM-DD"),
           time: selectedTime,
           name: customer.name.trim(),
@@ -171,7 +171,7 @@ const Installation = () => {
       const data = await response.json();
 
       if (response.ok) {
-        alert(t("installationSubmitted"));
+        alert(t("maintenanceSubmitted"));
         navigate("/");
       } else {
         alert(data.message || t("failedToSchedule"));
@@ -206,7 +206,7 @@ const Installation = () => {
               mb: 1.5,
             }}
           >
-            {t("installationService")}
+            {t("maintenanceService")}
           </Typography>
 
           <Typography
@@ -218,7 +218,7 @@ const Installation = () => {
               mb: 2,
             }}
           >
-            {t("bookInstallation")}
+            {t("bookMaintenance")}
           </Typography>
 
           <Typography
@@ -254,10 +254,10 @@ const Installation = () => {
             }}
           >
             {[
-              t("professionalSetup"),
+              t("preventiveCare"),
               t("reliableScheduling"),
               t("residentialCommercial"),
-              t("highQualityService"),
+              t("professionalHvacService"),
             ].map((item) => (
               <Typography
                 key={item}
@@ -393,7 +393,7 @@ const Installation = () => {
                         value={customer.notes}
                         onChange={handleCustomerChange}
                         InputLabelProps={{ shrink: true }}
-                        placeholder={t("installationNotesPlaceholder")}
+                        placeholder={t("maintenanceNotesPlaceholder")}
                         sx={filledInputStyles}
                       />
                     </Grid>
@@ -408,7 +408,7 @@ const Installation = () => {
                       mb: 2,
                     }}
                   >
-                    <EngineeringIcon sx={{ color: "#7fb3ff" }} />
+                    <TuneIcon sx={{ color: "#7fb3ff" }} />
                     <Typography
                       sx={{
                         color: "#f8fafc",
@@ -416,7 +416,7 @@ const Installation = () => {
                         fontSize: "1.25rem",
                       }}
                     >
-                      {t("installationDetails")}
+                      {t("maintenanceDetails")}
                     </Typography>
                   </Box>
 
@@ -428,22 +428,22 @@ const Installation = () => {
                       fontSize: "0.96rem",
                     }}
                   >
-                    {t("installationDetailsIntro")}
+                    {t("maintenanceDetailsIntro")}
                   </Typography>
 
                   <TextField
                     select
                     label={t("equipmentType")}
                     fullWidth
-                    value={installType}
-                    onChange={(e) => setInstallType(e.target.value)}
+                    value={maintenanceType}
+                    onChange={(e) => setMaintenanceType(e.target.value)}
                     required
                     InputLabelProps={{ shrink: true }}
                     variant="filled"
                     sx={{ ...filledInputStyles, mb: 3 }}
                   >
                     <MenuItem value="">{t("selectOption")}</MenuItem>
-                    {installationOptions.map((option) => (
+                    {maintenanceOptions.map((option) => (
                       <MenuItem key={option} value={option}>
                         {option}
                       </MenuItem>
@@ -555,7 +555,7 @@ const Installation = () => {
                           },
                         }}
                       >
-                        {!installType ? (
+                        {!maintenanceType ? (
                           <Typography
                             sx={{ color: "#94a3b8", lineHeight: 1.8 }}
                           >
@@ -665,7 +665,7 @@ const Installation = () => {
                       mb: 2.5,
                     }}
                   >
-                    {t("installationSummaryIntro")}
+                    {t("maintenanceSummaryIntro")}
                   </Typography>
 
                   <Box
@@ -729,7 +729,7 @@ const Installation = () => {
                         {t("equipmentType")}
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
-                        {installType || t("notSelectedYet")}
+                        {maintenanceType || t("notSelectedYet")}
                       </Typography>
                     </Paper>
 
@@ -785,7 +785,7 @@ const Installation = () => {
                   >
                     <Chip
                       icon={<BoltIcon />}
-                      label={t("professionalSetup")}
+                      label={t("preventiveCare")}
                       sx={{
                         color: "#dbeafe",
                         background: "rgba(127,179,255,0.12)",
@@ -794,7 +794,7 @@ const Installation = () => {
                     />
                     <Chip
                       icon={<CheckCircleIcon />}
-                      label={t("highQualityService")}
+                      label={t("professionalService")}
                       sx={{
                         color: "#dbeafe",
                         background: "rgba(127,179,255,0.12)",
@@ -812,7 +812,7 @@ const Installation = () => {
                         !customer.phone.trim() ||
                         !customer.email.trim() ||
                         !customer.address.trim() ||
-                        !installType ||
+                        !maintenanceType ||
                         !selectedDate ||
                         !selectedTime ||
                         submitting
@@ -848,4 +848,4 @@ const Installation = () => {
   );
 };
 
-export default Installation;
+export default Maintenance;

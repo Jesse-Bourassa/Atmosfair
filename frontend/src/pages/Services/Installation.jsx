@@ -14,6 +14,7 @@ import { DateCalendar } from "@mui/x-date-pickers";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import "dayjs/locale/fr";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import EngineeringIcon from "@mui/icons-material/Engineering";
@@ -24,19 +25,9 @@ import BoltIcon from "@mui/icons-material/Bolt";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { apiUrl } from "../../lib/api";
 import { useLanguage } from "../../context/LanguageContext";
+import "dayjs/locale/en";
 
 const MotionBox = motion(Box);
-
-const installationOptions = [
-  "Central Air Conditioning",
-  "Ductless Mini-Split",
-  "Furnace Installation",
-  "Heat Pump",
-  "Refrigeration",
-  "Suspended Unit",
-  "Roof Top",
-  "Natural Gas",
-];
 
 const filledInputStyles = {
   "& .MuiFilledInput-root": {
@@ -80,6 +71,17 @@ const Installation = () => {
 
   const { t, language } = useLanguage();
 
+  const installationOptions = [
+    t("equipmentCentralAirConditioning"),
+    t("equipmentDuctlessMiniSplit"),
+    t("equipmentFurnaceInstallation"),
+    t("equipmentHeatPump"),
+    t("equipmentRefrigeration"),
+    t("equipmentSuspendedUnit"),
+    t("equipmentRoofTop"),
+    t("equipmentNaturalGas"),
+  ];
+
   const [customer, setCustomer] = useState({
     name: "",
     phone: "",
@@ -89,6 +91,10 @@ const Installation = () => {
   });
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    dayjs.locale(language === "fr" ? "fr" : "en");
+  }, [language]);
 
   useEffect(() => {
     if (selectedDate && installType) {
@@ -117,12 +123,12 @@ const Installation = () => {
         setAvailableSlots(data);
       } else {
         setAvailableSlots([]);
-        alert(data.message || "Failed to fetch available slots.");
+        alert(data.message || t("failedToFetchSlots"));
       }
     } catch (err) {
       console.error("Error fetching slots:", err);
       setAvailableSlots([]);
-      alert("Error fetching available slots.");
+      alert(t("errorFetchingSlots"));
     } finally {
       setLoadingSlots(false);
     }
@@ -140,7 +146,7 @@ const Installation = () => {
       !selectedDate ||
       !selectedTime
     ) {
-      alert("Please fill in all required fields.");
+      alert(t("fillRequiredFields"));
       return;
     }
 
@@ -166,14 +172,14 @@ const Installation = () => {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Installation request submitted successfully!");
+        alert(t("installationSubmitted"));
         navigate("/");
       } else {
-        alert(data.message || "Failed to schedule.");
+        alert(data.message || t("failedToSchedule"));
       }
     } catch (err) {
       console.error("Error scheduling:", err);
-      alert("Error scheduling appointment.");
+      alert(t("errorSchedulingAppointment"));
     } finally {
       setSubmitting(false);
     }
@@ -201,7 +207,7 @@ const Installation = () => {
               mb: 1.5,
             }}
           >
-            Installation Service
+            {t("installationService")}
           </Typography>
 
           <Typography
@@ -213,7 +219,7 @@ const Installation = () => {
               mb: 2,
             }}
           >
-            Book HVAC Installation
+            {t("bookInstallation")}
           </Typography>
 
           <Typography
@@ -225,8 +231,7 @@ const Installation = () => {
               fontSize: { xs: "1rem", md: "1.04rem" },
             }}
           >
-            Choose your equipment type, enter your information, pick a date, and
-            select an available time slot.
+            {t("bookingIntro")}
           </Typography>
         </Box>
 
@@ -250,10 +255,10 @@ const Installation = () => {
             }}
           >
             {[
-              "Professional setup",
-              "Reliable scheduling",
-              "Residential & Commercial",
-              "High-quality service",
+              t("professionalSetup"),
+              t("reliableScheduling"),
+              t("residentialCommercial"),
+              t("highQualityService"),
             ].map((item) => (
               <Typography
                 key={item}
@@ -305,7 +310,7 @@ const Installation = () => {
                         fontSize: "1.25rem",
                       }}
                     >
-                      Customer Information
+                      {t("customerInformation")}
                     </Typography>
                   </Box>
 
@@ -317,14 +322,13 @@ const Installation = () => {
                       fontSize: "0.96rem",
                     }}
                   >
-                    Enter your contact details so we can confirm your
-                    appointment.
+                    {t("enterContactDetails")}
                   </Typography>
 
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>
                       <TextField
-                        label="Full Name"
+                        label={t("fullName")}
                         name="name"
                         fullWidth
                         required
@@ -338,7 +342,7 @@ const Installation = () => {
 
                     <Grid item xs={12} md={6}>
                       <TextField
-                        label="Phone Number"
+                        label={t("phoneNumber")}
                         name="phone"
                         fullWidth
                         required
@@ -352,7 +356,7 @@ const Installation = () => {
 
                     <Grid item xs={12}>
                       <TextField
-                        label="Email"
+                        label={t("email")}
                         name="email"
                         type="email"
                         fullWidth
@@ -367,7 +371,7 @@ const Installation = () => {
 
                     <Grid item xs={12}>
                       <TextField
-                        label="Service Address"
+                        label={t("serviceAddress")}
                         name="address"
                         fullWidth
                         required
@@ -381,7 +385,7 @@ const Installation = () => {
 
                     <Grid item xs={12}>
                       <TextField
-                        label="Additional Notes"
+                        label={t("additionalNotes")}
                         name="notes"
                         fullWidth
                         multiline
@@ -390,7 +394,7 @@ const Installation = () => {
                         value={customer.notes}
                         onChange={handleCustomerChange}
                         InputLabelProps={{ shrink: true }}
-                        placeholder="Optional details about the installation, property access, preferences, etc."
+                        placeholder={t("installationNotesPlaceholder")}
                         sx={filledInputStyles}
                       />
                     </Grid>
@@ -413,7 +417,7 @@ const Installation = () => {
                         fontSize: "1.25rem",
                       }}
                     >
-                      Installation Details
+                      {t("installationDetails")}
                     </Typography>
                   </Box>
 
@@ -425,12 +429,12 @@ const Installation = () => {
                       fontSize: "0.96rem",
                     }}
                   >
-                    Select the type of system you want installed to continue.
+                    {t("installationDetailsIntro")}
                   </Typography>
 
                   <TextField
                     select
-                    label="Equipment Type"
+                    label={t("equipmentType")}
                     fullWidth
                     value={installType}
                     onChange={(e) => setInstallType(e.target.value)}
@@ -439,7 +443,7 @@ const Installation = () => {
                     variant="filled"
                     sx={{ ...filledInputStyles, mb: 3 }}
                   >
-                    <MenuItem value="">Select an option</MenuItem>
+                    <MenuItem value="">{t("selectOption")}</MenuItem>
                     {installationOptions.map((option) => (
                       <MenuItem key={option} value={option}>
                         {option}
@@ -461,11 +465,14 @@ const Installation = () => {
                           sx={{ color: "#7fb3ff", fontSize: 20 }}
                         />
                         <Typography sx={{ color: "#f8fafc", fontWeight: 700 }}>
-                          Select Date
+                          {t("selectDate")}
                         </Typography>
                       </Box>
 
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <LocalizationProvider
+                        dateAdapter={AdapterDayjs}
+                        adapterLocale={language === "fr" ? "fr" : "en"}
+                      >
                         <DateCalendar
                           value={selectedDate}
                           onChange={(newValue) => setSelectedDate(newValue)}
@@ -528,7 +535,7 @@ const Installation = () => {
                           sx={{ color: "#7fb3ff", fontSize: 20 }}
                         />
                         <Typography sx={{ color: "#f8fafc", fontWeight: 700 }}>
-                          Select Time
+                          {t("selectTime")}
                         </Typography>
                       </Box>
 
@@ -553,8 +560,7 @@ const Installation = () => {
                           <Typography
                             sx={{ color: "#94a3b8", lineHeight: 1.8 }}
                           >
-                            Select an equipment type first to see available time
-                            slots.
+                            {t("selectEquipmentFirst")}
                           </Typography>
                         ) : loadingSlots ? (
                           <Box
@@ -610,7 +616,7 @@ const Installation = () => {
                           <Typography
                             sx={{ color: "#f87171", lineHeight: 1.8 }}
                           >
-                            No available slots for this day.
+                            {t("noAvailableSlots")}
                           </Typography>
                         )}
                       </Box>
@@ -649,7 +655,7 @@ const Installation = () => {
                       mb: 1.5,
                     }}
                   >
-                    Appointment Summary
+                    {t("appointmentSummary")}
                   </Typography>
 
                   <Typography
@@ -660,8 +666,7 @@ const Installation = () => {
                       mb: 2.5,
                     }}
                   >
-                    Review your booking details before confirming your
-                    installation appointment.
+                    {t("installationSummaryIntro")}
                   </Typography>
 
                   <Box
@@ -684,10 +689,10 @@ const Installation = () => {
                       <Typography
                         sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
                       >
-                        Customer Name
+                        {t("customerName")}
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
-                        {customer.name || "Not entered yet"}
+                        {customer.name || t("notEnteredYet")}
                       </Typography>
                     </Paper>
 
@@ -703,10 +708,10 @@ const Installation = () => {
                       <Typography
                         sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
                       >
-                        Phone Number
+                        {t("phoneNumber")}
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
-                        {customer.phone || "Not entered yet"}
+                        {customer.phone || t("notEnteredYet")}
                       </Typography>
                     </Paper>
 
@@ -722,10 +727,10 @@ const Installation = () => {
                       <Typography
                         sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
                       >
-                        Equipment Type
+                        {t("equipmentType")}
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
-                        {installType || "Not selected yet"}
+                        {installType || t("notSelectedYet")}
                       </Typography>
                     </Paper>
 
@@ -741,12 +746,18 @@ const Installation = () => {
                       <Typography
                         sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
                       >
-                        Date
+                        {t("date")}
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
                         {selectedDate
-                          ? selectedDate.format("MMMM D, YYYY")
-                          : "Not selected yet"}
+                          ? selectedDate
+                              .locale(language === "fr" ? "fr" : "en")
+                              .format(
+                                language === "fr"
+                                  ? "D MMMM YYYY"
+                                  : "MMMM D, YYYY",
+                              )
+                          : t("notSelectedYet")}
                       </Typography>
                     </Paper>
 
@@ -762,10 +773,10 @@ const Installation = () => {
                       <Typography
                         sx={{ color: "#88a8c9", fontSize: ".82rem", mb: 0.6 }}
                       >
-                        Time Slot
+                        {t("timeSlot")}
                       </Typography>
                       <Typography sx={{ color: "#fff", fontWeight: 700 }}>
-                        {selectedTime || "Not selected yet"}
+                        {selectedTime || t("notSelectedYet")}
                       </Typography>
                     </Paper>
                   </Box>
@@ -775,7 +786,7 @@ const Installation = () => {
                   >
                     <Chip
                       icon={<BoltIcon />}
-                      label="Professional setup"
+                      label={t("professionalSetup")}
                       sx={{
                         color: "#dbeafe",
                         background: "rgba(127,179,255,0.12)",
@@ -784,7 +795,7 @@ const Installation = () => {
                     />
                     <Chip
                       icon={<CheckCircleIcon />}
-                      label="High-quality service"
+                      label={t("highQualityService")}
                       sx={{
                         color: "#dbeafe",
                         background: "rgba(127,179,255,0.12)",
@@ -825,7 +836,7 @@ const Installation = () => {
                         },
                       }}
                     >
-                      {submitting ? "Scheduling..." : "Schedule Appointment"}
+                      {submitting ? t("scheduling") : t("scheduleAppointment")}
                     </Button>
                   </Box>
                 </Paper>
