@@ -2,6 +2,7 @@ const express = require("express");
 const Schedule = require("../models/Schedule");
 const router = express.Router();
 const sendBookingConfirmation = require("../utils/sendEmail");
+const { notifyDadDevices } = require("../utils/notifyDevices");
 /* ───── Config ───── */
 const SERVICE_DURATIONS = {
   repair: 3,        // hours
@@ -90,6 +91,15 @@ router.post("/", async (req, res) => {
 } catch (emailErr) {
   console.error("Booking confirmation email failed:", emailErr);
 }
+
+    try {
+      await notifyDadDevices(
+        "New Service Request 🔧",
+        `${newSchedule.name} booked ${newSchedule.type} on ${newSchedule.date} at ${newSchedule.time}`
+      );
+    } catch (pushErr) {
+      console.error("Push notification failed:", pushErr);
+    }
 
     res.status(201).json({
       message: "Appointment booked",
