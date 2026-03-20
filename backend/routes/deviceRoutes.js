@@ -2,9 +2,13 @@ const express = require("express");
 const router = express.Router();
 const DeviceToken = require("../models/DeviceToken");
 
+function normalizeLanguage(language) {
+  return language === "en" ? "en" : "fr";
+}
+
 router.post("/register", async (req, res) => {
   try {
-    const { token, platform, userId } = req.body;
+    const { token, platform, userId, language } = req.body;
 
     if (!token) {
       return res.status(400).json({ message: "Device token is required." });
@@ -16,6 +20,7 @@ router.post("/register", async (req, res) => {
         token,
         platform: platform || "ios",
         userId: userId || "dad",
+        language: normalizeLanguage(language),
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );

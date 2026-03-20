@@ -4,10 +4,14 @@ const { notifyDadDevices } = require("../utils/notifyDevices");
 
 router.post("/test", async (req, res) => {
   try {
-    await notifyDadDevices(
-      "Test notification",
-      "Push notifications are working."
-    );
+    const fakeSchedule = {
+      name: "Test Client",
+      type: "repair",
+      date: "2026-03-20",
+      time: "10:00",
+    };
+
+    await notifyDadDevices(fakeSchedule);
 
     res.status(200).json({ message: "Test push sent." });
   } catch (error) {
