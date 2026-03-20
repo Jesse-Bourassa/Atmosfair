@@ -10,6 +10,10 @@ const SERVICE_DURATIONS = {
   installation: 8,
 };
 
+function normalizeLanguage(language) {
+  return language === "fr" ? "fr" : "en";
+}
+
 /* ───── Helpers ───── */
 // "09:30 AM" -> "09:30"
 // "12:00 PM" -> "12:00"
@@ -39,11 +43,14 @@ router.post("/", async (req, res) => {
     equipmentType,
     date,
     time,
+    language,
   } = req.body;
 
   if (!name || !phone || !email || !address || !type || !date || !time) {
     return res.status(400).json({ message: "Missing required fields" });
   }
+
+  const customerLanguage = normalizeLanguage(language);
 
   const duration = SERVICE_DURATIONS[type];
   if (!duration) {
@@ -87,16 +94,16 @@ router.post("/", async (req, res) => {
     });
 
     try {
-  await sendBookingConfirmation(newSchedule);
-} catch (emailErr) {
-  console.error("Booking confirmation email failed:", emailErr);
-}
+      await sendBookingConfirmation({
+        ...newSchedule.toObject(),
+        language: customerLanguage,
+      });
+    } catch (emailErr) {
+      console.error("Booking confirmation email failed:", emailErr);
+    }
 
     try {
-      await notifyDadDevices(
-        "New Service Request 🔧",
-        `${newSchedule.name} booked ${newSchedule.type} on ${newSchedule.date} at ${newSchedule.time}`
-      );
+      await notifyDadDevices(newSchedule);
     } catch (pushErr) {
       console.error("Push notification failed:", pushErr);
     }

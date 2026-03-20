@@ -6,6 +6,7 @@ const DeviceTokenSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      trim: true,
     },
     platform: {
       type: String,
@@ -15,6 +16,12 @@ const DeviceTokenSchema = new mongoose.Schema(
     userId: {
       type: String,
       default: "dad",
+      trim: true,
+    },
+    language: {
+      type: String,
+      enum: ["en", "fr"],
+      default: "fr",
     },
   },
   { timestamps: true }
