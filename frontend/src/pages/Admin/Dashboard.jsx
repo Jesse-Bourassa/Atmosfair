@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Container,
@@ -10,47 +10,95 @@ import {
   Divider,
   Skeleton,
 } from "@mui/material";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 
 import Appointments from "./Appointments";
 import Customer from "./Csutomer";
 import CalendarScheduler from "./CalendarScheduler";
 import { apiUrl } from "../../lib/api";
 
-
-
 const cardSx = {
   p: { xs: 2, md: 3 },
   borderRadius: 3,
-  bgcolor: "rgba(17, 25, 40, 0.55)",           // bluish glass
+  bgcolor: "rgba(17, 25, 40, 0.55)",
   backdropFilter: "blur(14px)",
   border: "1px solid rgba(255,255,255,0.10)",
   boxShadow: "0 18px 60px rgba(0,0,0,0.55)",
 };
+
+const StatCard = ({ label, value, sub, color, icon: Icon }) => (
+  <Paper
+    sx={{
+      ...cardSx,
+      flex: 1,
+      p: { xs: 2, md: 2.5 },
+      display: "flex",
+      alignItems: "center",
+      gap: 2,
+    }}
+  >
+    <Box
+      sx={{
+        width: 48,
+        height: 48,
+        borderRadius: 2.5,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: `${color}22`,
+        flexShrink: 0,
+      }}
+    >
+      <Icon sx={{ color, fontSize: 24 }} />
+    </Box>
+    <Box>
+      <Typography
+        sx={{
+          fontSize: "0.72rem",
+          fontWeight: 700,
+          color: "rgba(255,255,255,0.45)",
+          textTransform: "uppercase",
+          letterSpacing: 1,
+        }}
+      >
+        {label}
+      </Typography>
+      <Typography
+        sx={{ fontSize: "1.85rem", fontWeight: 800, color, lineHeight: 1.1, mt: 0.2 }}
+      >
+        {value}
+      </Typography>
+      {sub && (
+        <Typography sx={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", mt: 0.25 }}>
+          {sub}
+        </Typography>
+      )}
+    </Box>
+  </Paper>
+);
+
 const Dashboard = () => {
   const [customers, setCustomers] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const navigate = useNavigate();
 
-useEffect(() => {
-  document.body.classList.add("bg-admin");
-  document.body.classList.remove("bg-public");
+  const today = dayjs().format("YYYY-MM-DD");
 
-  return () => {
-    document.body.classList.remove("bg-admin");
-  };
-}, []);
+  useEffect(() => {
+    document.body.classList.add("bg-admin");
+    document.body.classList.remove("bg-public");
+    return () => { document.body.classList.remove("bg-admin"); };
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
-    // If no token, bounce to login
-    if (!token) {
-      navigate("/login");
-      return;
-    }
+    if (!token) { navigate("/login"); return; }
 
     const fetchCustomers = async () => {
       const res = await fetch(apiUrl("/api/users/customers"), {
@@ -67,20 +115,15 @@ useEffect(() => {
       });
       if (!res.ok) throw new Error("Failed to fetch appointments");
       const data = await res.json();
-
       return data.map((item) => ({
         ...item,
-        time: item.time?.length === 7 ? "0" + item.time : item.time,
-        date: item.date,
+        time: item.time?.length === 4 ? "0" + item.time : item.time,
       }));
     };
 
     (async () => {
       try {
-        const [cust, appts] = await Promise.all([
-          fetchCustomers(),
-          fetchAppointments(),
-        ]);
+        const [cust, appts] = await Promise.all([fetchCustomers(), fetchAppointments()]);
         setCustomers(cust);
         setAppointments(appts);
       } catch (err) {
@@ -96,128 +139,162 @@ useEffect(() => {
     [customers]
   );
 
+  const todayCount = useMemo(
+    () => appointments.filter((a) => a.date === today).length,
+    [appointments, today]
+  );
+
+  const upcomingCount = useMemo(
+    () => appointments.filter((a) => a.date >= today).length,
+    [appointments, today]
+  );
+
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        pt: { xs: 10, md: 11 },
-        pb: { xs: 4, md: 6 }
-      }}
-    >
+    <Box sx={{ minHeight: "100vh", pt: { xs: 10, md: 11 }, pb: { xs: 4, md: 6 } }}>
       <Container
-  maxWidth={false}
-  disableGutters
-  sx={{ px: { xs: 2, md: 2 }, maxWidth: 2200, mx: "auto" }}
->
+        maxWidth={false}
+        disableGutters
+        sx={{ px: { xs: 2, md: 3 }, maxWidth: 2200, mx: "auto" }}
+      >
         {/* Header */}
-        <Stack spacing={1.5} sx={{ mb: 3 }}>
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            alignItems={{ sm: "center" }}
-            justifyContent="space-between"
-            gap={1.5}
-          >
+        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" sx={{ mb: 3 }}>
+          <Stack spacing={0.4}>
             <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: 0.2 }}>
               Dashboard
             </Typography>
-
-            
+            <Typography sx={{ color: "rgba(255,255,255,0.45)", fontSize: "0.88rem" }}>
+              Manage scheduling and customers in one place.
+            </Typography>
           </Stack>
-
-          <Typography sx={{ color: "rgba(255,255,255,0.65)" }}>
-            Manage scheduling and customers in one place.
-          </Typography>
+          <Chip
+            icon={<ReceiptLongIcon sx={{ fontSize: "1rem !important" }} />}
+            label="Soumissions"
+            clickable
+            onClick={() => navigate("/admin/quotes")}
+            sx={{
+              bgcolor: "rgba(33,150,243,0.12)",
+              border: "1px solid rgba(33,150,243,0.35)",
+              color: "#2196f3",
+              fontWeight: 700,
+              fontSize: "0.78rem",
+              mt: 0.5,
+            }}
+          />
         </Stack>
 
-        <Grid container spacing={6} alignItems="flex-start">
-  {/* LEFT: Schedule */}
-  <Grid item xs={12} lg={8}>
-    <Paper
-  sx={{
-    ...cardSx,
-    height: { lg: "calc(100vh - 275px)" }, // tweak 230–300
-    minHeight: 700,
-  }}
->
-      <Stack spacing={2} sx={{ height: "100%" }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            Schedule
-          </Typography>
+        {/* Stat cards */}
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 3 }}>
+          <StatCard
+            label="Today"
+            value={loading ? "–" : todayCount}
+            sub="appointments today"
+            color="#2196f3"
+            icon={CalendarMonthIcon}
+          />
+          <StatCard
+            label="Upcoming"
+            value={loading ? "–" : upcomingCount}
+            sub="from today onwards"
+            color="#43a047"
+            icon={EventAvailableIcon}
+          />
+          <StatCard
+            label="Customers"
+            value={loading ? "–" : customers.length}
+            sub="registered accounts"
+            color="#f57c00"
+            icon={PeopleAltIcon}
+          />
         </Stack>
-        <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
 
-        {loading ? (
-          <Skeleton variant="rounded" sx={{ height: "100%" }} />
-        ) : (
-          <Box sx={{ flex: 1, minHeight: 0 }}>
-    <CalendarScheduler appointments={appointments} customerById={customerById} />
-  </Box>
-        )}
-      </Stack>
-    </Paper>
-  </Grid>
+        {/* Main grid */}
+        <Grid container spacing={3} alignItems="flex-start">
+          {/* LEFT: Schedule */}
+          <Grid item xs={12} lg={8}>
+            <Paper
+              sx={{
+                ...cardSx,
+                height: { lg: "calc(100vh - 340px)" },
+                minHeight: 580,
+              }}
+            >
+              <Stack spacing={2} sx={{ height: "100%" }}>
+                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                    Schedule
+                  </Typography>
+                  <Typography
+                    sx={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.35)", fontWeight: 600 }}
+                  >
+                    {dayjs().format("MMMM YYYY")}
+                  </Typography>
+                </Stack>
+                <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
 
+                {loading ? (
+                  <Skeleton variant="rounded" sx={{ flex: 1 }} />
+                ) : (
+                  <Box sx={{ flex: 1, minHeight: 0 }}>
+                    <CalendarScheduler appointments={appointments} customerById={customerById} />
+                  </Box>
+                )}
+              </Stack>
+            </Paper>
+          </Grid>
 
-  {/* RIGHT: Upcoming + Customers stacked */}
-<Grid item xs={12} lg={4}>
-  <Stack
-    spacing={5}
-    sx={{
-      height: { lg: "calc(100vh - 225px)" }, // match Schedule
-      minHeight: 700,                        // match Schedule
-    }}
-  >
-    {/* Upcoming appointments */}
-    <Paper sx={{ ...cardSx, p: { xs: 2.5, md: 3.5 }, flex: 1, minHeight: 0 }}>
-      <Stack spacing={2} sx={{ height: "100%" }}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
-  <Typography variant="h6" sx={{ fontWeight: 700 }}>
-    Upcoming appointments
-  </Typography>
+          {/* RIGHT: Appointments + Customers */}
+          <Grid item xs={12} lg={4}>
+            <Stack
+              spacing={3}
+              sx={{
+                height: { lg: "calc(100vh - 340px)" },
+                minHeight: 580,
+              }}
+            >
+              {/* Appointments */}
+              <Paper sx={{ ...cardSx, flex: 1, minHeight: 0 }}>
+                <Stack spacing={2} sx={{ height: "100%" }}>
+                  <Stack direction="row" alignItems="center" justifyContent="space-between">
+                    <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                      Appointments
+                    </Typography>
+                    <Chip
+                      size="small"
+                      label={loading ? "…" : `${appointments.length} total`}
+                      variant="outlined"
+                      sx={{ borderColor: "rgba(255,255,255,0.18)", fontSize: "0.72rem" }}
+                    />
+                  </Stack>
+                  <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
+                  <Box className="card-scroll" sx={{ flex: 1, minHeight: 0, overflowY: "auto", pr: 0.5 }}>
+                    <Appointments appointments={appointments} loading={loading} />
+                  </Box>
+                </Stack>
+              </Paper>
 
-  <Chip
-    size="small"
-    label={loading ? "…" : `${appointments.length} total`}
-    variant="outlined"
-    sx={{ borderColor: "rgba(255,255,255,0.18)" }}
-  />
-</Stack>
-        <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
-
-        {/* scroll area fills remaining space */}
-        <Box className="card-scroll" sx={{ flex: 1, minHeight: 0, overflowY: "auto", pr: 1 }}>
-          <Appointments appointments={appointments} loading={loading} />
-        </Box>
-      </Stack>
-    </Paper>
-
-    {/* Customers */}
-    <Paper sx={{ ...cardSx, p: { xs: 2.5, md: 3.5 }, flex: 1, minHeight: 0 }}>
-      <Stack spacing={2} sx={{ height: "100%" }}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
-  <Typography variant="h6" sx={{ fontWeight: 700 }}>
-    Customers
-  </Typography>
-
-  <Chip
-    size="small"
-    label={loading ? "…" : `${customers.length} shown`}
-    variant="outlined"
-    sx={{ borderColor: "rgba(255,255,255,0.18)" }}
-  />
-</Stack>
-        <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
-
-        {/* scroll area fills remaining space */}
-        <Box className="card-scroll" sx={{ flex: 1, minHeight: 0, overflowY: "auto", pr: 1 }}>
-          <Customer customers={customers} loading={loading} />
-        </Box>
-      </Stack>
-    </Paper>
-  </Stack>
-</Grid>
-</Grid>
+              {/* Customers */}
+              <Paper sx={{ ...cardSx, flex: 1, minHeight: 0 }}>
+                <Stack spacing={2} sx={{ height: "100%" }}>
+                  <Stack direction="row" alignItems="center" justifyContent="space-between">
+                    <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                      Customers
+                    </Typography>
+                    <Chip
+                      size="small"
+                      label={loading ? "…" : `${customers.length} shown`}
+                      variant="outlined"
+                      sx={{ borderColor: "rgba(255,255,255,0.18)", fontSize: "0.72rem" }}
+                    />
+                  </Stack>
+                  <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
+                  <Box className="card-scroll" sx={{ flex: 1, minHeight: 0, overflowY: "auto", pr: 0.5 }}>
+                    <Customer customers={customers} loading={loading} />
+                  </Box>
+                </Stack>
+              </Paper>
+            </Stack>
+          </Grid>
+        </Grid>
       </Container>
     </Box>
   );

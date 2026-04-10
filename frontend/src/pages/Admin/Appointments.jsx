@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { apiUrl } from "../../lib/api";
 import {
   Box,
@@ -11,36 +11,57 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
   Chip,
 } from "@mui/material";
+
+const TYPE_COLORS = {
+  repair:       { bg: "rgba(245,124,0,0.18)",  color: "#f57c00" },
+  maintenance:  { bg: "rgba(67,160,71,0.18)",  color: "#43a047" },
+  installation: { bg: "rgba(25,118,210,0.18)", color: "#1976d2" },
+};
+
+const TypeBadge = ({ type }) => {
+  const style = TYPE_COLORS[type] ?? { bg: "rgba(255,255,255,0.1)", color: "#fff" };
+  return (
+    <Chip
+      label={type}
+      size="small"
+      sx={{
+        bgcolor: style.bg,
+        color: style.color,
+        fontWeight: 700,
+        fontSize: "0.7rem",
+        textTransform: "capitalize",
+        border: `1px solid ${style.color}44`,
+        height: 22,
+      }}
+    />
+  );
+};
 
 /**
  * Props (recommended):
  * - appointments: array
  * - loading: boolean
- * - customerById: { [userId]: customer }
  *
  * If not provided, component will fallback to fetching.
  */
-const Appointments = ({ appointments: apptsProp, loading: loadingProp, customerById }) => {
+const Appointments = ({ appointments: apptsProp, loading: loadingProp }) => {
   const [appointments, setAppointments] = useState(apptsProp ?? []);
   const [loading, setLoading] = useState(loadingProp ?? (apptsProp ? false : true));
 
   useEffect(() => {
-    // If Dashboard passes props, use them
-    if (apptsProp) {
-      setAppointments(aptsPropSafe(apptsProp));
+    if (apptsProp !== undefined) {
+      setAppointments(normalize(apptsProp));
       setLoading(!!loadingProp);
       return;
     }
 
-    // Fallback fetch (only if props not provided)
     const fetchAppointments = async () => {
       try {
         const res = await fetch(apiUrl("/api/schedule"));
         const data = await res.json();
-        setAppointments(aptsPropSafe(data));
+        setAppointments(normalize(data));
       } catch (err) {
         console.error("Failed to fetch appointments", err);
       } finally {
@@ -55,8 +76,6 @@ const Appointments = ({ appointments: apptsProp, loading: loadingProp, customerB
 
   return (
     <Box>
-      
-
       {loading ? (
         <Stack alignItems="center" sx={{ py: 4 }}>
           <CircularProgress size={28} />
@@ -65,10 +84,9 @@ const Appointments = ({ appointments: apptsProp, loading: loadingProp, customerB
         <TableContainer
           component={Paper}
           sx={{
-            maxHeight: 420,
-            borderRadius: 3,
-            bgcolor: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 2.5,
+            bgcolor: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.07)",
             overflow: "hidden",
           }}
         >
@@ -77,29 +95,30 @@ const Appointments = ({ appointments: apptsProp, loading: loadingProp, customerB
               <TableRow>
                 <HeaderCell>Type</HeaderCell>
                 <HeaderCell>Date</HeaderCell>
+                <HeaderCell>Time</HeaderCell>
                 <HeaderCell>Customer</HeaderCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
-              {rows.map((appt) => {
-                const cust = customerById?.[String(appt.userId)];
-                const customerLabel = cust?.name ?? appt.userId;
-
-                return (
-                  <TableRow
-                    key={appt._id}
-                    sx={{
-                      "& td": { borderColor: "rgba(255,255,255,0.06)" },
-                      "&:hover": { bgcolor: "rgba(33,150,243,0.10)" },
-                    }}
-                  >
-                    <BodyCell sx={{ textTransform: "capitalize" }}>{appt.type}</BodyCell>
-                    <BodyCell>{appt.date}</BodyCell>
-                    <BodyCell sx={{ fontWeight: 600 }}>{customerLabel}</BodyCell>
-                  </TableRow>
-                );
-              })}
+              {rows.map((appt) => (
+                <TableRow
+                  key={appt._id}
+                  sx={{
+                    "& td": { borderColor: "rgba(255,255,255,0.05)" },
+                    "&:hover": { bgcolor: "rgba(33,150,243,0.08)" },
+                  }}
+                >
+                  <BodyCell>
+                    <TypeBadge type={appt.type} />
+                  </BodyCell>
+                  <BodyCell>{appt.date}</BodyCell>
+                  <BodyCell sx={{ color: "rgba(255,255,255,0.55)", fontSize: "0.78rem" }}>
+                    {appt.time}
+                  </BodyCell>
+                  <BodyCell sx={{ fontWeight: 600 }}>{appt.name}</BodyCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
@@ -108,12 +127,10 @@ const Appointments = ({ appointments: apptsProp, loading: loadingProp, customerB
   );
 };
 
-function aptsPropSafe(data) {
-  // keep your padding behavior if needed
+function normalize(data) {
   return (data ?? []).map((item) => ({
     ...item,
-    time: item.time?.length === 7 ? "0" + item.time : item.time,
-    date: item.date,
+    time: item.time?.length === 4 ? "0" + item.time : item.time,
   }));
 }
 
@@ -121,11 +138,14 @@ const HeaderCell = (props) => (
   <TableCell
     {...props}
     sx={{
-      fontWeight: 800,
-      color: "rgba(255,255,255,0.85)",
-      bgcolor: "rgba(15,15,15,0.85)",
-      borderColor: "rgba(255,255,255,0.08)",
-      py: 1.25,
+      fontWeight: 700,
+      fontSize: "0.72rem",
+      textTransform: "uppercase",
+      letterSpacing: 0.8,
+      color: "rgba(255,255,255,0.5)",
+      bgcolor: "rgba(10,10,20,0.85)",
+      borderColor: "rgba(255,255,255,0.07)",
+      py: 1.2,
     }}
   />
 );
@@ -135,7 +155,9 @@ const BodyCell = (props) => (
     {...props}
     sx={{
       color: "rgba(255,255,255,0.78)",
-      py: 1.2,
+      py: 1.1,
+      fontSize: "0.82rem",
+      ...props.sx,
     }}
   />
 );
