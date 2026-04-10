@@ -16,6 +16,7 @@ import Maintenance from "./pages/Services/Maintenance";
 import Repairs from "./pages/Services/Repairs";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Admin/Dashboard";
+import Quotes from "./pages/Admin/Quotes";
 import { AuthProvider } from "./context/AuthContext"; // 👈 Import
 import CustomerDetails from "./pages/Admin/CustomerDetails";
 import BodyClassController from "./BodyClassController";
@@ -93,6 +94,7 @@ function App() {
                 <Route path="/repairs" element={<Repairs />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/admin/Dashboard" element={<Dashboard />} />
+                <Route path="/admin/quotes"    element={<Quotes />} />
                 <Route
                   path="/admin/customer/:id"
                   element={<CustomerDetails />}

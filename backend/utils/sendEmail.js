@@ -46,10 +46,10 @@ const sendBookingConfirmation = async (booking) => {
         <p><b>Nom:</b> ${booking.name}</p>
         <p><b>Service:</b> ${serviceLabel}</p>
         <p><b>Équipement:</b> ${booking.equipmentType}</p>
-        <p><b>Date:</b> ${booking.date}</p>
-        <p><b>Heure:</b> ${booking.time}</p>
+        <p><b>Date souhaitée :</b> ${booking.date}</p>
+        <p><b>Heure souhaitée :</b> ${booking.time}</p>
 
-        <p>Nous vous contacterons sous peu pour confirmer le rendez-vous.</p>
+        <p>Nous vous contacterons sous peu pour discuter des détails et vous fournir une soumission. La date et l'heure indiquées sont vos préférences et restent à confirmer.</p>
 
         <p>Merci,<br/>Atmosf'air</p>
       `
@@ -63,10 +63,10 @@ const sendBookingConfirmation = async (booking) => {
         <p><b>Name:</b> ${booking.name}</p>
         <p><b>Service:</b> ${serviceLabel}</p>
         <p><b>Equipment:</b> ${booking.equipmentType}</p>
-        <p><b>Date:</b> ${booking.date}</p>
-        <p><b>Time:</b> ${booking.time}</p>
+        <p><b>Preferred Date:</b> ${booking.date}</p>
+        <p><b>Preferred Time:</b> ${booking.time}</p>
 
-        <p>We will contact you shortly to confirm the appointment.</p>
+        <p>We will contact you shortly to discuss the details and provide a quote. The date and time above are your preference and are subject to confirmation.</p>
 
         <p>Thank you,<br/>Atmosf'air</p>
       `;
