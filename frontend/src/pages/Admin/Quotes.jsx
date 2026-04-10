@@ -346,6 +346,8 @@ const Quotes = () => {
 
   async function submitQuote() {
     if (!form.customerName.trim()) return;
+    const hasInvalidItem = form.items.some((i) => !i.description.trim() || i.unitPrice === "");
+    if (hasInvalidItem) return;
     setSaving(true);
     try {
       const payload = {
@@ -362,6 +364,10 @@ const Quotes = () => {
         body: JSON.stringify(payload),
       });
       const newQ = await res.json();
+      if (!res.ok) {
+        console.error("Failed to create quote:", newQ.message);
+        return;
+      }
       setQuotes((prev) => [newQ, ...prev]);
       setCreateOpen(false);
       setForm(emptyForm());
