@@ -1,7 +1,12 @@
-const express = require("express");
-const router  = express.Router();
-const jwt     = require("jsonwebtoken");
-const Quote   = require("../models/Quote");
+const express  = require("express");
+const router   = express.Router();
+const jwt      = require("jsonwebtoken");
+const multer   = require("multer");
+const pdfParse = require("pdf-parse");
+const Quote    = require("../models/Quote");
+const { parsePDF } = require("../utils/pdfParser");
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } });
 
 // ── Auth middleware (same pattern as users.js) ───────────────────────────────
 const verifyToken = (req, res, next) => {
@@ -39,6 +44,19 @@ async function nextQuoteNumber() {
 }
 
 // ── Routes ────────────────────────────────────────────────────────────────────
+
+// POST parse a supplier PDF — returns { supplier, supplierName, supplierTotal, items[] }
+router.post("/parse-pdf", verifyToken, verifyAdmin, upload.single("pdf"), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+    const data   = await pdfParse(req.file.buffer);
+    const result = parsePDF(data.text);
+    res.json(result);
+  } catch (err) {
+    console.error("PDF parse error:", err.message);
+    res.status(500).json({ message: "Impossible de lire le PDF: " + err.message });
+  }
+});
 
 // GET all quotes (optional ?month=YYYY-MM&status=accepted)
 router.get("/", verifyToken, verifyAdmin, async (req, res) => {

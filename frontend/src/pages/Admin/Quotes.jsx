@@ -1,18 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  Autocomplete,
   Box, Button, Chip, CircularProgress, Container, Dialog, DialogActions,
   DialogContent, DialogTitle, Divider, FormControl, Grid, IconButton,
   InputLabel, MenuItem, Paper, Select, Skeleton, Stack, Table, TableBody,
   TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip,
-  Typography,
+  Typography, Alert,
 } from "@mui/material";
-import AddIcon          from "@mui/icons-material/Add";
-import CloseIcon        from "@mui/icons-material/Close";
+import AddIcon           from "@mui/icons-material/Add";
+import CloseIcon         from "@mui/icons-material/Close";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import FileDownloadIcon from "@mui/icons-material/FileDownload";
-import PrintIcon        from "@mui/icons-material/Print";
-import VisibilityIcon   from "@mui/icons-material/Visibility";
+import FileDownloadIcon  from "@mui/icons-material/FileDownload";
+import PrintIcon         from "@mui/icons-material/Print";
+import VisibilityIcon    from "@mui/icons-material/Visibility";
+import UploadFileIcon    from "@mui/icons-material/UploadFile";
 import dayjs from "dayjs";
 import { apiUrl } from "../../lib/api";
 
@@ -57,12 +59,7 @@ function calcTotals(items) {
     (s, i) => s + (parseFloat(i.quantity) || 0) * (parseFloat(i.unitPrice) || 0),
     0,
   );
-  return {
-    subtotal,
-    tps:   subtotal * 0.05,
-    tvq:   subtotal * 0.09975,
-    total: subtotal * (1 + 0.05 + 0.09975),
-  };
+  return { subtotal, tps: subtotal * 0.05, tvq: subtotal * 0.09975, total: subtotal * 1.14975 };
 }
 
 function fmt(n) {
@@ -80,28 +77,18 @@ function printQuote(quote, lang) {
   const fr   = lang !== "en";
   const date = dayjs(quote.createdAt).format("YYYY-MM-DD");
   const svc  = fr ? SERVICE_FR[quote.serviceType] : SERVICE_EN[quote.serviceType];
-
   const rows = quote.items.map(
-    (item) =>
-      `<tr>
-        <td>${item.description}</td>
-        <td class="r">${item.quantity}</td>
-        <td class="r">${fmt(item.unitPrice)}</td>
-        <td class="r">${fmt(item.quantity * item.unitPrice)}</td>
-      </tr>`,
+    (item) => `<tr>
+      <td>${item.description}</td><td class="r">${item.quantity}</td>
+      <td class="r">${fmt(item.unitPrice)}</td>
+      <td class="r">${fmt(item.quantity * item.unitPrice)}</td>
+    </tr>`,
   ).join("");
-
   const stamp =
-    quote.status === "accepted"
-      ? `<span class="stamp accepted">${fr ? "ACCEPTÉ" : "ACCEPTED"}</span>`
-      : quote.status === "declined"
-      ? `<span class="stamp declined">${fr ? "REFUSÉ" : "DECLINED"}</span>`
-      : "";
+    quote.status === "accepted" ? `<span class="stamp accepted">${fr ? "ACCEPTÉ" : "ACCEPTED"}</span>` :
+    quote.status === "declined" ? `<span class="stamp declined">${fr ? "REFUSÉ"  : "DECLINED"}</span>` : "";
 
-  const html = `<!DOCTYPE html>
-<html lang="${lang}">
-<head>
-<meta charset="utf-8">
+  const html = `<!DOCTYPE html><html lang="${lang}"><head><meta charset="utf-8">
 <title>${fr ? "Soumission" : "Quote"} ${quote.quoteNumber}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -123,45 +110,35 @@ function printQuote(quote, lang) {
   .notes{margin-top:20px;padding:10px 14px;background:#f9f9f9;border-left:3px solid #ddd}
   .footer{margin-top:36px;padding-top:14px;border-top:1px solid #eee;font-size:11px;color:#888;text-align:center}
   .stamp{display:inline-block;padding:3px 10px;border:2px solid;border-radius:3px;font-weight:bold;font-size:11px;margin-left:10px;vertical-align:middle}
-  .accepted{color:#43a047;border-color:#43a047}
-  .declined{color:#f44336;border-color:#f44336}
-</style>
-</head>
-<body>
+  .accepted{color:#43a047;border-color:#43a047}.declined{color:#f44336;border-color:#f44336}
+</style></head><body>
 <div class="header">
   <div class="co">ATMOSFAIR</div>
   <div class="co-sub">Services HVAC / HVAC Services</div>
-  ${quote.companyTPS ? `<div class="tax-nums">TPS/GST&nbsp;: ${quote.companyTPS} &nbsp;|&nbsp; TVQ/QST&nbsp;: ${quote.companyTVQ}</div>` : ""}
-</div>
-<hr>
+  ${quote.companyTPS ? `<div class="tax-nums">TPS/GST : ${quote.companyTPS} | TVQ/QST : ${quote.companyTVQ}</div>` : ""}
+</div><hr>
 <div class="meta">
   <div>
     <span class="lbl">${fr ? "Soumission" : "Quote"}</span>
-    <span style="font-size:18px;font-weight:bold">#${quote.quoteNumber}</span>
-    ${stamp}
+    <span style="font-size:18px;font-weight:bold">#${quote.quoteNumber}</span>${stamp}
   </div>
   <div style="text-align:right">
-    <span class="lbl">${fr ? "Date" : "Date"}</span>
-    <span>${date}</span>
+    <span class="lbl">Date</span><span>${date}</span>
     ${svc ? `<br><span style="color:#666;font-size:12px">${svc}</span>` : ""}
   </div>
 </div>
 <div style="margin-bottom:20px">
   <span class="lbl">${fr ? "Client" : "Customer"}</span>
   <div>${quote.customerName}</div>
-  ${quote.customerPhone  ? `<div>${quote.customerPhone}</div>`  : ""}
-  ${quote.customerEmail  ? `<div>${quote.customerEmail}</div>`  : ""}
+  ${quote.customerPhone   ? `<div>${quote.customerPhone}</div>`   : ""}
+  ${quote.customerEmail   ? `<div>${quote.customerEmail}</div>`   : ""}
   ${quote.customerAddress ? `<div>${quote.customerAddress}</div>` : ""}
 </div>
 <table>
-  <thead>
-    <tr>
-      <th>${fr ? "Description" : "Description"}</th>
-      <th class="r">${fr ? "Qté" : "Qty"}</th>
-      <th class="r">${fr ? "Prix unitaire" : "Unit Price"}</th>
-      <th class="r">Total</th>
-    </tr>
-  </thead>
+  <thead><tr>
+    <th>Description</th><th class="r">${fr ? "Qté" : "Qty"}</th>
+    <th class="r">${fr ? "Prix unitaire" : "Unit Price"}</th><th class="r">Total</th>
+  </tr></thead>
   <tbody>${rows}</tbody>
 </table>
 <table class="tot">
@@ -172,8 +149,7 @@ function printQuote(quote, lang) {
 </table>
 ${quote.notes ? `<div class="notes"><strong>${fr ? "Notes" : "Notes"} :</strong> ${quote.notes}</div>` : ""}
 <div class="footer">${fr ? "Merci de votre confiance. — Atmosfair" : "Thank you for your business. — Atmosfair"}</div>
-</body>
-</html>`;
+</body></html>`;
 
   const win = window.open("", "_blank", "width=820,height=940");
   win.document.write(html);
@@ -185,26 +161,19 @@ function exportCSV(quotes, month) {
   const BOM  = "\uFEFF";
   const hdrs = ["Soumission #", "Client", "Date", "Service", "Sous-total", "TPS", "TVQ", "Total", "Statut"];
   const rows = quotes.map((q) => [
-    q.quoteNumber,
-    q.customerName,
+    q.quoteNumber, q.customerName,
     dayjs(q.createdAt).format("YYYY-MM-DD"),
     SERVICE_FR[q.serviceType] || q.serviceType || "",
-    q.subtotal.toFixed(2),
-    q.tps.toFixed(2),
-    q.tvq.toFixed(2),
-    q.total.toFixed(2),
+    q.subtotal.toFixed(2), q.tps.toFixed(2), q.tvq.toFixed(2), q.total.toFixed(2),
     STATUS_META[q.status]?.label || q.status,
   ]);
   const csv  = BOM + [hdrs, ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\r\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement("a");
-  a.href     = url;
-  a.download = `atmosfair-soumissions-${month || "tout"}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  a.href = url; a.download = `atmosfair-soumissions-${month || "tout"}.csv`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
 // ── Small UI pieces ───────────────────────────────────────────────────────────
@@ -212,34 +181,57 @@ function exportCSV(quotes, month) {
 const StatusChip = ({ status }) => {
   const m = STATUS_META[status] ?? STATUS_META.draft;
   return (
-    <Chip
-      label={m.label}
-      size="small"
-      sx={{ bgcolor: m.bg, color: m.color, fontWeight: 700, fontSize: "0.7rem", border: `1px solid ${m.color}44`, height: 22 }}
-    />
+    <Chip label={m.label} size="small"
+      sx={{ bgcolor: m.bg, color: m.color, fontWeight: 700, fontSize: "0.7rem", border: `1px solid ${m.color}44`, height: 22 }} />
   );
 };
 
 const HC = (props) => (
-  <TableCell
-    {...props}
-    sx={{
-      fontWeight: 700, fontSize: "0.72rem", textTransform: "uppercase",
-      letterSpacing: 0.8, color: "rgba(255,255,255,0.5)",
-      bgcolor: "rgba(10,10,20,0.85)", borderColor: "rgba(255,255,255,0.07)", py: 1.2,
-      ...props.sx,
-    }}
-  />
+  <TableCell {...props} sx={{
+    fontWeight: 700, fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: 0.8,
+    color: "rgba(255,255,255,0.5)", bgcolor: "rgba(10,10,20,0.85)",
+    borderColor: "rgba(255,255,255,0.07)", py: 1.2, ...props.sx,
+  }} />
 );
-
 const BC = (props) => (
-  <TableCell
-    {...props}
-    sx={{ color: "rgba(255,255,255,0.78)", py: 1.1, fontSize: "0.82rem", borderColor: "rgba(255,255,255,0.05)", ...props.sx }}
+  <TableCell {...props} sx={{
+    color: "rgba(255,255,255,0.78)", py: 1.1, fontSize: "0.82rem",
+    borderColor: "rgba(255,255,255,0.05)", ...props.sx,
+  }} />
+);
+
+// ── Client Autocomplete ───────────────────────────────────────────────────────
+
+const ClientAutocomplete = ({ clients, value, onChange }) => (
+  <Autocomplete
+    freeSolo
+    options={clients}
+    getOptionLabel={(o) => (typeof o === "string" ? o : o.name || "")}
+    value={value}
+    onChange={(_, val) => onChange(val)}
+    onInputChange={(_, val, reason) => { if (reason === "input") onChange(val); }}
+    renderInput={(params) => (
+      <TextField {...params} label="Client *" size="small"
+        sx={darkFieldSx}
+        InputProps={{ ...params.InputProps, sx: { color: "#fff" } }}
+        InputLabelProps={{ sx: { color: "rgba(255,255,255,0.5)" } }}
+      />
+    )}
+    renderOption={(props, option) => (
+      <Box component="li" {...props} sx={{ fontSize: "0.85rem" }}>
+        <Stack>
+          <Typography sx={{ fontWeight: 600, fontSize: "0.85rem" }}>{option.name}</Typography>
+          {option.mainPhone && <Typography sx={{ fontSize: "0.75rem", color: "rgba(0,0,0,0.5)" }}>{option.mainPhone}</Typography>}
+        </Stack>
+      </Box>
+    )}
+    PaperComponent={({ children }) => (
+      <Paper sx={{ bgcolor: "#1a2035", border: "1px solid rgba(255,255,255,0.15)" }}>{children}</Paper>
+    )}
   />
 );
 
-// ── Form helpers ──────────────────────────────────────────────────────────────
+// ── Form state helpers ────────────────────────────────────────────────────────
 
 const emptyItem = () => ({ description: "", quantity: 1, unitPrice: "" });
 const emptyForm = () => ({
@@ -248,21 +240,35 @@ const emptyForm = () => ({
   items: [emptyItem()],
 });
 
-// ── Main component ────────────────────────────────────────────────────────────
+// ── Main Component ────────────────────────────────────────────────────────────
 
 const Quotes = () => {
-  const navigate = useNavigate();
-  const token    = localStorage.getItem("token");
+  const navigate     = useNavigate();
+  const token        = localStorage.getItem("token");
+  const fileInputRef = useRef(null);
 
-  const [quotes,       setQuotes]      = useState([]);
-  const [loading,      setLoading]     = useState(true);
-  const [filterMonth,  setFilterMonth] = useState(dayjs().format("YYYY-MM"));
-  const [filterStatus, setFilterStatus]= useState("");
-  const [viewQuote,    setViewQuote]   = useState(null);
-  const [printLang,    setPrintLang]   = useState("fr");
-  const [createOpen,   setCreateOpen]  = useState(false);
-  const [saving,       setSaving]      = useState(false);
-  const [form,         setForm]        = useState(emptyForm());
+  const [quotes,        setQuotes]        = useState([]);
+  const [clients,       setClients]       = useState([]);
+  const [loading,       setLoading]       = useState(true);
+  const [filterMonth,   setFilterMonth]   = useState(dayjs().format("YYYY-MM"));
+  const [filterStatus,  setFilterStatus]  = useState("");
+  const [viewQuote,     setViewQuote]     = useState(null);
+  const [printLang,     setPrintLang]     = useState("fr");
+  const [createOpen,    setCreateOpen]    = useState(false);
+  const [saving,        setSaving]        = useState(false);
+  const [form,          setForm]          = useState(emptyForm());
+
+  // PDF import state
+  const [dragOver,      setDragOver]      = useState(false);
+  const [importing,     setImporting]     = useState(false);
+  const [importOpen,    setImportOpen]    = useState(false);
+  const [importData,    setImportData]    = useState(null);
+  const [importItems,   setImportItems]   = useState([]);
+  const [importClient,  setImportClient]  = useState("");
+  const [importDetails, setImportDetails] = useState({ serviceType: "", language: "fr", notes: "" });
+  const [importError,   setImportError]   = useState("");
+
+  // ── Data fetching ───────────────────────────────────────────────────────────
 
   useEffect(() => {
     document.body.classList.add("bg-admin");
@@ -273,6 +279,7 @@ const Quotes = () => {
   useEffect(() => {
     if (!token) { navigate("/login"); return; }
     fetchQuotes();
+    fetchClients();
   }, [navigate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function fetchQuotes() {
@@ -288,7 +295,18 @@ const Quotes = () => {
     }
   }
 
-  // Filtered quotes (client-side for speed)
+  async function fetchClients() {
+    try {
+      const res  = await fetch(apiUrl("/api/users/customers"), { headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      setClients(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch clients", err);
+    }
+  }
+
+  // ── Derived data ────────────────────────────────────────────────────────────
+
   const filtered = useMemo(() => {
     let q = quotes;
     if (filterMonth)  q = q.filter((x) => dayjs(x.createdAt).format("YYYY-MM") === filterMonth);
@@ -296,7 +314,6 @@ const Quotes = () => {
     return q;
   }, [quotes, filterMonth, filterStatus]);
 
-  // Monthly summary totals
   const summary = useMemo(
     () => filtered.reduce(
       (s, q) => ({ count: s.count + 1, subtotal: s.subtotal + q.subtotal, tps: s.tps + q.tps, tvq: s.tvq + q.tvq, total: s.total + q.total }),
@@ -305,7 +322,8 @@ const Quotes = () => {
     [filtered],
   );
 
-  // Status change (inline from table row)
+  // ── Quote actions ───────────────────────────────────────────────────────────
+
   async function changeStatus(id, status) {
     try {
       await fetch(apiUrl(`/api/quotes/${id}`), {
@@ -331,58 +349,161 @@ const Quotes = () => {
     }
   }
 
-  // Form item helpers
-  const setItem = (idx, field, value) =>
-    setForm((prev) => {
-      const items = [...prev.items];
-      items[idx]  = { ...items[idx], [field]: value };
-      return { ...prev, items };
-    });
+  // ── Manual create form helpers ──────────────────────────────────────────────
 
-  const addItem    = () => setForm((prev) => ({ ...prev, items: [...prev.items, emptyItem()] }));
-  const removeItem = (idx) => setForm((prev) => ({ ...prev, items: prev.items.filter((_, i) => i !== idx) }));
-
+  const setItem    = (idx, f, v) => setForm((p) => { const items = [...p.items]; items[idx] = { ...items[idx], [f]: v }; return { ...p, items }; });
+  const addItem    = () => setForm((p) => ({ ...p, items: [...p.items, emptyItem()] }));
+  const removeItem = (idx) => setForm((p) => ({ ...p, items: p.items.filter((_, i) => i !== idx) }));
   const formTotals = useMemo(() => calcTotals(form.items), [form.items]);
 
-  async function submitQuote() {
-    if (!form.customerName.trim()) return;
-    const hasInvalidItem = form.items.some((i) => !i.description.trim() || i.unitPrice === "");
-    if (hasInvalidItem) return;
+  function handleCreateClientSelect(val) {
+    if (val && typeof val === "object") {
+      setForm((p) => ({
+        ...p,
+        customerName:    val.name      || p.customerName,
+        customerEmail:   val.email     || "",
+        customerPhone:   val.mainPhone || val.telephone || "",
+        customerAddress: val.address   || "",
+      }));
+    } else {
+      setForm((p) => ({ ...p, customerName: val || "" }));
+    }
+  }
+
+  async function postQuote(payload) {
     setSaving(true);
     try {
-      const payload = {
-        ...form,
-        items: form.items.map((i) => ({
-          description: i.description,
-          quantity:    parseFloat(i.quantity)  || 1,
-          unitPrice:   parseFloat(i.unitPrice) || 0,
-        })),
-      };
       const res  = await fetch(apiUrl("/api/quotes"), {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       const newQ = await res.json();
-      if (!res.ok) {
-        console.error("Failed to create quote:", newQ.message);
-        return;
-      }
       setQuotes((prev) => [newQ, ...prev]);
-      setCreateOpen(false);
-      setForm(emptyForm());
+      return newQ;
     } catch (err) {
       console.error("Failed to create quote", err);
+      return null;
     } finally {
       setSaving(false);
     }
   }
 
-  const months = last12Months();
+  async function handleManualCreate() {
+    if (!form.customerName.trim()) return;
+    const q = await postQuote({
+      ...form,
+      items: form.items.map((i) => ({
+        description: i.description,
+        quantity:    parseFloat(i.quantity)  || 1,
+        unitPrice:   parseFloat(i.unitPrice) || 0,
+      })),
+    });
+    if (q) { setCreateOpen(false); setForm(emptyForm()); }
+  }
+
+  // ── PDF drag-and-drop ───────────────────────────────────────────────────────
+
+  const handleDragOver  = useCallback((e) => { e.preventDefault(); setDragOver(true); }, []);
+  const handleDragLeave = useCallback((e) => { if (!e.currentTarget.contains(e.relatedTarget)) setDragOver(false); }, []);
+  const handleDrop      = useCallback((e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files?.[0]; if (f) uploadPDF(f); }, []); // eslint-disable-line
+
+  async function uploadPDF(file) {
+    if (!file.name.toLowerCase().endsWith(".pdf")) { alert("Veuillez déposer un fichier PDF."); return; }
+    setImporting(true);
+    setImportError("");
+    try {
+      const fd = new FormData();
+      fd.append("pdf", file);
+      const res  = await fetch(apiUrl("/api/quotes/parse-pdf"), {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      });
+      if (!res.ok) throw new Error((await res.json()).message || "Erreur serveur");
+      const data = await res.json();
+      setImportData(data);
+      setImportItems(data.items.map((item) => ({ ...item })));
+      setImportClient("");
+      setImportDetails({ serviceType: "", language: "fr", notes: "" });
+      setImportOpen(true);
+    } catch (err) {
+      setImportError("Impossible de lire le PDF : " + err.message);
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  function handleImportClientSelect(val) {
+    setImportClient(typeof val === "object" && val !== null ? val : val || "");
+  }
+
+  const setImportItem    = (idx, f, v) => setImportItems((p) => { const a = [...p]; a[idx] = { ...a[idx], [f]: v }; return a; });
+  const removeImportItem = (idx) => setImportItems((p) => p.filter((_, i) => i !== idx));
+  const addImportItem    = () => setImportItems((p) => [...p, { description: "", quantity: 1, unitPrice: 0, supplierCost: 0 }]);
+  const importTotals     = useMemo(() => calcTotals(importItems), [importItems]);
+
+  async function saveImportAsDraft() {
+    const clientName = typeof importClient === "object" ? importClient?.name : importClient;
+    if (!clientName?.trim()) { setImportError("Veuillez sélectionner ou entrer un nom de client."); return; }
+    const q = await postQuote({
+      customerName:    clientName,
+      customerEmail:   typeof importClient === "object" ? importClient?.email     || "" : "",
+      customerPhone:   typeof importClient === "object" ? importClient?.mainPhone || importClient?.telephone || "" : "",
+      customerAddress: typeof importClient === "object" ? importClient?.address   || "" : "",
+      serviceType:     importDetails.serviceType,
+      language:        importDetails.language,
+      notes:           importDetails.notes,
+      status:          "draft",
+      items:           importItems.map((i) => ({
+        description: i.description,
+        quantity:    parseFloat(i.quantity)  || 1,
+        unitPrice:   parseFloat(i.unitPrice) || 0,
+      })),
+    });
+    if (q) { setImportOpen(false); setImportData(null); }
+  }
 
   // ── Render ──────────────────────────────────────────────────────────────────
+  const months = last12Months();
+
   return (
-    <Box sx={{ minHeight: "100vh", pt: { xs: 10, md: 11 }, pb: { xs: 4, md: 6 } }}>
+    <Box
+      sx={{ minHeight: "100vh", pt: { xs: 10, md: 11 }, pb: { xs: 4, md: 6 }, position: "relative" }}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {/* Full-page drag overlay */}
+      {dragOver && (
+        <Box sx={{
+          position: "fixed", inset: 0, zIndex: 9999,
+          bgcolor: "rgba(33,150,243,0.18)", border: "3px dashed #2196f3",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          pointerEvents: "none",
+        }}>
+          <Stack alignItems="center" spacing={2}>
+            <UploadFileIcon sx={{ fontSize: 64, color: "#2196f3" }} />
+            <Typography sx={{ fontSize: "1.5rem", fontWeight: 800, color: "#2196f3" }}>
+              Déposer le PDF du fournisseur ici
+            </Typography>
+          </Stack>
+        </Box>
+      )}
+
+      {/* Parsing spinner overlay */}
+      {importing && (
+        <Box sx={{
+          position: "fixed", inset: 0, zIndex: 9998, bgcolor: "rgba(0,0,0,0.5)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <Stack alignItems="center" spacing={2}>
+            <CircularProgress size={48} sx={{ color: "#2196f3" }} />
+            <Typography sx={{ color: "#fff", fontWeight: 600 }}>Lecture du PDF…</Typography>
+          </Stack>
+        </Box>
+      )}
+
       <Container maxWidth={false} disableGutters sx={{ px: { xs: 2, md: 3 }, maxWidth: 2200, mx: "auto" }}>
 
         {/* Header */}
@@ -390,18 +511,26 @@ const Quotes = () => {
           <Stack spacing={0.4}>
             <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: 0.2 }}>Soumissions</Typography>
             <Typography sx={{ color: "rgba(255,255,255,0.45)", fontSize: "0.88rem" }}>
-              Créez, gérez et imprimez les soumissions clients.
+              Glissez un PDF fournisseur n'importe où sur la page pour créer une soumission.
             </Typography>
           </Stack>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setCreateOpen(true)}
-            sx={{ borderRadius: 2, textTransform: "none", fontWeight: 700, bgcolor: "#2196f3", "&:hover": { bgcolor: "#1976d2" } }}
-          >
-            Nouvelle soumission
-          </Button>
+          <Stack direction="row" spacing={1.5}>
+            <input ref={fileInputRef} type="file" accept=".pdf" style={{ display: "none" }}
+              onChange={(e) => { if (e.target.files?.[0]) uploadPDF(e.target.files[0]); e.target.value = ""; }} />
+            <Button variant="outlined" startIcon={<UploadFileIcon />}
+              onClick={() => fileInputRef.current?.click()}
+              sx={{ borderRadius: 2, textTransform: "none", fontWeight: 600, borderColor: "rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.7)" }}>
+              Importer PDF
+            </Button>
+            <Button variant="contained" startIcon={<AddIcon />}
+              onClick={() => setCreateOpen(true)}
+              sx={{ borderRadius: 2, textTransform: "none", fontWeight: 700, bgcolor: "#2196f3", "&:hover": { bgcolor: "#1976d2" } }}>
+              Nouvelle soumission
+            </Button>
+          </Stack>
         </Stack>
+
+        {importError && <Alert severity="error" onClose={() => setImportError("")} sx={{ mb: 2 }}>{importError}</Alert>}
 
         {/* Filter bar */}
         <Paper sx={{ ...cardSx, p: 2, mb: 3 }}>
@@ -413,14 +542,9 @@ const Quotes = () => {
                 {months.map((m) => <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>)}
               </Select>
             </FormControl>
-
             <Stack direction="row" spacing={1} flexWrap="wrap">
               {[["", "Tous"], ...Object.entries(STATUS_META).map(([k, v]) => [k, v.label])].map(([val, label]) => (
-                <Chip
-                  key={val}
-                  label={label}
-                  size="small"
-                  onClick={() => setFilterStatus(val)}
+                <Chip key={val} label={label} size="small" onClick={() => setFilterStatus(val)}
                   variant={filterStatus === val ? "filled" : "outlined"}
                   sx={{
                     cursor: "pointer", fontWeight: 600, fontSize: "0.72rem",
@@ -431,23 +555,14 @@ const Quotes = () => {
                 />
               ))}
             </Stack>
-
             <Box sx={{ flex: 1 }} />
-
-            <Tooltip title="Exporter CSV">
-              <span>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  startIcon={<FileDownloadIcon />}
-                  onClick={() => exportCSV(filtered, filterMonth)}
-                  disabled={filtered.length === 0}
-                  sx={{ borderColor: "rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.7)", textTransform: "none" }}
-                >
-                  CSV
-                </Button>
-              </span>
-            </Tooltip>
+            <Tooltip title="Exporter CSV"><span>
+              <Button variant="outlined" size="small" startIcon={<FileDownloadIcon />}
+                onClick={() => exportCSV(filtered, filterMonth)} disabled={filtered.length === 0}
+                sx={{ borderColor: "rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.7)", textTransform: "none" }}>
+                CSV
+              </Button>
+            </span></Tooltip>
           </Stack>
         </Paper>
 
@@ -466,12 +581,8 @@ const Quotes = () => {
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <HC>N°</HC>
-                    <HC>Client</HC>
-                    <HC>Date</HC>
-                    <HC>Service</HC>
-                    <HC sx={{ textAlign: "right" }}>Total</HC>
-                    <HC>Statut</HC>
+                    <HC>N°</HC><HC>Client</HC><HC>Date</HC><HC>Service</HC>
+                    <HC sx={{ textAlign: "right" }}>Total</HC><HC>Statut</HC>
                     <HC sx={{ textAlign: "right" }}>Actions</HC>
                   </TableRow>
                 </TableHead>
@@ -482,28 +593,19 @@ const Quotes = () => {
                       <BC sx={{ fontWeight: 600 }}>{q.customerName}</BC>
                       <BC sx={{ color: "rgba(255,255,255,0.5)" }}>{dayjs(q.createdAt).format("DD MMM YYYY")}</BC>
                       <BC sx={{ color: "rgba(255,255,255,0.5)", fontSize: "0.75rem" }}>{SERVICE_FR[q.serviceType] || "—"}</BC>
-                      <BC sx={{ textAlign: "right", fontWeight: 700, color: "#43a047" }}>{fmt(q.total)}</BC>
+                      <BC sx={{ textAlign: "right", fontWeight: 700, color: q.total > 0 ? "#43a047" : "rgba(255,255,255,0.3)" }}>
+                        {q.total > 0 ? fmt(q.total) : "— à remplir"}
+                      </BC>
                       <BC>
-                        <Select
-                          value={q.status}
-                          onChange={(e) => changeStatus(q._id, e.target.value)}
-                          size="small"
-                          variant="standard"
-                          disableUnderline
-                          sx={{ fontSize: "0.75rem", color: STATUS_META[q.status]?.color, "& .MuiSelect-icon": { color: "rgba(255,255,255,0.3)" } }}
-                        >
-                          {Object.entries(STATUS_META).map(([k, v]) => (
-                            <MenuItem key={k} value={k} sx={{ fontSize: "0.8rem" }}>{v.label}</MenuItem>
-                          ))}
+                        <Select value={q.status} onChange={(e) => changeStatus(q._id, e.target.value)}
+                          size="small" variant="standard" disableUnderline
+                          sx={{ fontSize: "0.75rem", color: STATUS_META[q.status]?.color, "& .MuiSelect-icon": { color: "rgba(255,255,255,0.3)" } }}>
+                          {Object.entries(STATUS_META).map(([k, v]) => <MenuItem key={k} value={k} sx={{ fontSize: "0.8rem" }}>{v.label}</MenuItem>)}
                         </Select>
                       </BC>
                       <BC sx={{ textAlign: "right" }}>
                         <Tooltip title="Voir / Imprimer">
-                          <IconButton
-                            size="small"
-                            onClick={() => { setViewQuote(q); setPrintLang(q.language || "fr"); }}
-                            sx={{ color: "#2196f3" }}
-                          >
+                          <IconButton size="small" onClick={() => { setViewQuote(q); setPrintLang(q.language || "fr"); }} sx={{ color: "#2196f3" }}>
                             <VisibilityIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
@@ -522,28 +624,20 @@ const Quotes = () => {
             <Stack direction={{ xs: "column", sm: "row" }} spacing={3} alignItems="center" justifyContent="space-between" flexWrap="wrap">
               <Stack direction="row" spacing={{ xs: 2, md: 4 }} flexWrap="wrap">
                 {[
-                  ["Soumissions", summary.count,    "#2196f3"],
-                  ["Sous-total",  summary.subtotal,  "rgba(255,255,255,0.8)"],
-                  ["TPS",         summary.tps,       "rgba(255,255,255,0.8)"],
-                  ["TVQ",         summary.tvq,       "rgba(255,255,255,0.8)"],
-                  ["Total",       summary.total,     "#43a047"],
-                ].map(([label, val, color]) => (
+                  ["Soumissions", summary.count,   "#2196f3", false],
+                  ["Sous-total",  summary.subtotal, "rgba(255,255,255,0.8)", true],
+                  ["TPS",         summary.tps,      "rgba(255,255,255,0.8)", true],
+                  ["TVQ",         summary.tvq,      "rgba(255,255,255,0.8)", true],
+                  ["Total",       summary.total,    "#43a047", true],
+                ].map(([label, val, color, isCurrency]) => (
                   <Box key={label}>
-                    <Typography sx={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 0.8 }}>
-                      {label}
-                    </Typography>
-                    <Typography sx={{ fontSize: "1.4rem", fontWeight: 800, color }}>
-                      {label === "Soumissions" ? val : fmt(val)}
-                    </Typography>
+                    <Typography sx={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 0.8 }}>{label}</Typography>
+                    <Typography sx={{ fontSize: "1.4rem", fontWeight: 800, color }}>{isCurrency ? fmt(val) : val}</Typography>
                   </Box>
                 ))}
               </Stack>
-              <Button
-                variant="outlined"
-                startIcon={<FileDownloadIcon />}
-                onClick={() => exportCSV(filtered, filterMonth)}
-                sx={{ borderColor: "rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.7)", textTransform: "none", borderRadius: 2 }}
-              >
+              <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={() => exportCSV(filtered, filterMonth)}
+                sx={{ borderColor: "rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.7)", textTransform: "none", borderRadius: 2 }}>
                 Exporter CSV
               </Button>
             </Stack>
@@ -552,150 +646,227 @@ const Quotes = () => {
 
         {/* ── View / Print dialog ─────────────────────────────────────────── */}
         <Dialog open={!!viewQuote} onClose={() => setViewQuote(null)} maxWidth="md" fullWidth PaperProps={{ sx: { ...cardSx, borderRadius: 3 } }}>
-          {viewQuote && (
-            <>
-              <DialogTitle sx={{ pb: 1 }}>
-                <Stack direction="row" alignItems="center" justifyContent="space-between">
-                  <Stack direction="row" alignItems="center" spacing={2}>
-                    <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>
-                      Soumission #{viewQuote.quoteNumber}
-                    </Typography>
-                    <StatusChip status={viewQuote.status} />
-                  </Stack>
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    {/* FR / EN toggle */}
-                    <Stack direction="row" spacing={0.5}>
-                      {["fr", "en"].map((l) => (
-                        <Chip
-                          key={l}
-                          label={l.toUpperCase()}
-                          size="small"
-                          onClick={() => setPrintLang(l)}
-                          variant={printLang === l ? "filled" : "outlined"}
-                          sx={{
-                            cursor: "pointer", fontWeight: 700, fontSize: "0.68rem",
-                            bgcolor: printLang === l ? "#2196f3" : "transparent",
-                            borderColor: "#2196f344",
-                            color: printLang === l ? "#fff" : "rgba(255,255,255,0.5)",
-                          }}
-                        />
-                      ))}
-                    </Stack>
-                    <Button
-                      variant="contained"
-                      startIcon={<PrintIcon />}
-                      size="small"
-                      onClick={() => printQuote(viewQuote, printLang)}
-                      sx={{ bgcolor: "#2196f3", textTransform: "none", fontWeight: 700, borderRadius: 2 }}
-                    >
-                      Imprimer
-                    </Button>
-                    <IconButton onClick={() => setViewQuote(null)} size="small" sx={{ color: "rgba(255,255,255,0.5)" }}>
-                      <CloseIcon fontSize="small" />
-                    </IconButton>
-                  </Stack>
+          {viewQuote && (<>
+            <DialogTitle sx={{ pb: 1 }}>
+              <Stack direction="row" alignItems="center" justifyContent="space-between">
+                <Stack direction="row" alignItems="center" spacing={2}>
+                  <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>Soumission #{viewQuote.quoteNumber}</Typography>
+                  <StatusChip status={viewQuote.status} />
                 </Stack>
-              </DialogTitle>
-
-              <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
-
-              <DialogContent sx={{ pt: 2.5 }}>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} sm={6}>
-                    <Typography sx={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: "rgba(255,255,255,0.4)", mb: 0.5 }}>
-                      Client
-                    </Typography>
-                    <Typography sx={{ fontWeight: 600 }}>{viewQuote.customerName}</Typography>
-                    {viewQuote.customerPhone   && <Typography sx={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)" }}>{viewQuote.customerPhone}</Typography>}
-                    {viewQuote.customerEmail   && <Typography sx={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)" }}>{viewQuote.customerEmail}</Typography>}
-                    {viewQuote.customerAddress && <Typography sx={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)" }}>{viewQuote.customerAddress}</Typography>}
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <Typography sx={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: "rgba(255,255,255,0.4)", mb: 0.5 }}>
-                      Détails
-                    </Typography>
-                    <Typography sx={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.7)" }}>
-                      Date&nbsp;: {dayjs(viewQuote.createdAt).format("DD MMMM YYYY")}
-                    </Typography>
-                    {viewQuote.serviceType && (
-                      <Typography sx={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.7)" }}>
-                        Service&nbsp;: {SERVICE_FR[viewQuote.serviceType]}
-                      </Typography>
-                    )}
-                  </Grid>
-                </Grid>
-
-                <Divider sx={{ my: 2.5, borderColor: "rgba(255,255,255,0.08)" }} />
-
-                {/* Line items */}
-                <TableContainer>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <HC>Description</HC>
-                        <HC sx={{ textAlign: "right" }}>Qté</HC>
-                        <HC sx={{ textAlign: "right" }}>Prix unitaire</HC>
-                        <HC sx={{ textAlign: "right" }}>Total</HC>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {viewQuote.items.map((item, i) => (
-                        <TableRow key={i}>
-                          <BC>{item.description}</BC>
-                          <BC sx={{ textAlign: "right" }}>{item.quantity}</BC>
-                          <BC sx={{ textAlign: "right" }}>{fmt(item.unitPrice)}</BC>
-                          <BC sx={{ textAlign: "right", fontWeight: 600 }}>{fmt(item.quantity * item.unitPrice)}</BC>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-
-                {/* Totals */}
-                <Stack alignItems="flex-end" spacing={0.5} sx={{ mt: 2 }}>
-                  {[["Sous-total", viewQuote.subtotal], ["TPS (5 %)", viewQuote.tps], ["TVQ (9,975 %)", viewQuote.tvq]].map(([lbl, val]) => (
-                    <Stack key={lbl} direction="row" spacing={4}>
-                      <Typography sx={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.5)", minWidth: 110, textAlign: "right" }}>{lbl}</Typography>
-                      <Typography sx={{ fontSize: "0.82rem", minWidth: 90, textAlign: "right" }}>{fmt(val)}</Typography>
-                    </Stack>
-                  ))}
-                  <Divider sx={{ width: 220, borderColor: "rgba(255,255,255,0.15)" }} />
-                  <Stack direction="row" spacing={4}>
-                    <Typography sx={{ fontWeight: 700, minWidth: 110, textAlign: "right" }}>Total</Typography>
-                    <Typography sx={{ fontWeight: 800, fontSize: "1rem", color: "#43a047", minWidth: 90, textAlign: "right" }}>{fmt(viewQuote.total)}</Typography>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Stack direction="row" spacing={0.5}>
+                    {["fr", "en"].map((l) => (
+                      <Chip key={l} label={l.toUpperCase()} size="small" onClick={() => setPrintLang(l)}
+                        variant={printLang === l ? "filled" : "outlined"}
+                        sx={{ cursor: "pointer", fontWeight: 700, fontSize: "0.68rem",
+                          bgcolor: printLang === l ? "#2196f3" : "transparent",
+                          borderColor: "#2196f344", color: printLang === l ? "#fff" : "rgba(255,255,255,0.5)" }} />
+                    ))}
                   </Stack>
-                </Stack>
-
-                {viewQuote.notes && (
-                  <Box sx={{ mt: 2.5, p: 2, bgcolor: "rgba(255,255,255,0.04)", borderRadius: 2, borderLeft: "3px solid rgba(255,255,255,0.15)" }}>
-                    <Typography sx={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: "rgba(255,255,255,0.4)", mb: 0.5 }}>Notes</Typography>
-                    <Typography sx={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.7)" }}>{viewQuote.notes}</Typography>
-                  </Box>
-                )}
-
-                <Stack direction="row" justifyContent="flex-end" sx={{ mt: 2 }}>
-                  <Button
-                    size="small"
-                    startIcon={<DeleteOutlineIcon />}
-                    onClick={() => deleteQuote(viewQuote._id)}
-                    sx={{ textTransform: "none", color: "#f44336", fontSize: "0.78rem" }}
-                  >
-                    Supprimer
+                  <Button variant="contained" startIcon={<PrintIcon />} size="small"
+                    onClick={() => printQuote(viewQuote, printLang)}
+                    sx={{ bgcolor: "#2196f3", textTransform: "none", fontWeight: 700, borderRadius: 2 }}>
+                    Imprimer
                   </Button>
+                  <IconButton onClick={() => setViewQuote(null)} size="small" sx={{ color: "rgba(255,255,255,0.5)" }}>
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
                 </Stack>
-              </DialogContent>
-            </>
-          )}
+              </Stack>
+            </DialogTitle>
+            <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
+            <DialogContent sx={{ pt: 2.5 }}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
+                  <Typography sx={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: "rgba(255,255,255,0.4)", mb: 0.5 }}>Client</Typography>
+                  <Typography sx={{ fontWeight: 600 }}>{viewQuote.customerName}</Typography>
+                  {viewQuote.customerPhone   && <Typography sx={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)" }}>{viewQuote.customerPhone}</Typography>}
+                  {viewQuote.customerEmail   && <Typography sx={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)" }}>{viewQuote.customerEmail}</Typography>}
+                  {viewQuote.customerAddress && <Typography sx={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)" }}>{viewQuote.customerAddress}</Typography>}
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography sx={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: "rgba(255,255,255,0.4)", mb: 0.5 }}>Détails</Typography>
+                  <Typography sx={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.7)" }}>Date : {dayjs(viewQuote.createdAt).format("DD MMMM YYYY")}</Typography>
+                  {viewQuote.serviceType && <Typography sx={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.7)" }}>Service : {SERVICE_FR[viewQuote.serviceType]}</Typography>}
+                </Grid>
+              </Grid>
+              <Divider sx={{ my: 2.5, borderColor: "rgba(255,255,255,0.08)" }} />
+              <TableContainer>
+                <Table size="small">
+                  <TableHead><TableRow>
+                    <HC>Description</HC><HC sx={{ textAlign: "right" }}>Qté</HC>
+                    <HC sx={{ textAlign: "right" }}>Prix unitaire</HC><HC sx={{ textAlign: "right" }}>Total</HC>
+                  </TableRow></TableHead>
+                  <TableBody>
+                    {viewQuote.items.map((item, i) => (
+                      <TableRow key={i}>
+                        <BC>{item.description}</BC>
+                        <BC sx={{ textAlign: "right" }}>{item.quantity}</BC>
+                        <BC sx={{ textAlign: "right" }}>{fmt(item.unitPrice)}</BC>
+                        <BC sx={{ textAlign: "right", fontWeight: 600 }}>{fmt(item.quantity * item.unitPrice)}</BC>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <Stack alignItems="flex-end" spacing={0.5} sx={{ mt: 2 }}>
+                {[["Sous-total", viewQuote.subtotal], ["TPS (5 %)", viewQuote.tps], ["TVQ (9,975 %)", viewQuote.tvq]].map(([lbl, val]) => (
+                  <Stack key={lbl} direction="row" spacing={4}>
+                    <Typography sx={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.5)", minWidth: 110, textAlign: "right" }}>{lbl}</Typography>
+                    <Typography sx={{ fontSize: "0.82rem", minWidth: 90, textAlign: "right" }}>{fmt(val)}</Typography>
+                  </Stack>
+                ))}
+                <Divider sx={{ width: 220, borderColor: "rgba(255,255,255,0.15)" }} />
+                <Stack direction="row" spacing={4}>
+                  <Typography sx={{ fontWeight: 700, minWidth: 110, textAlign: "right" }}>Total</Typography>
+                  <Typography sx={{ fontWeight: 800, fontSize: "1rem", color: "#43a047", minWidth: 90, textAlign: "right" }}>{fmt(viewQuote.total)}</Typography>
+                </Stack>
+              </Stack>
+              {viewQuote.notes && (
+                <Box sx={{ mt: 2.5, p: 2, bgcolor: "rgba(255,255,255,0.04)", borderRadius: 2, borderLeft: "3px solid rgba(255,255,255,0.15)" }}>
+                  <Typography sx={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: "rgba(255,255,255,0.4)", mb: 0.5 }}>Notes</Typography>
+                  <Typography sx={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.7)" }}>{viewQuote.notes}</Typography>
+                </Box>
+              )}
+              <Stack direction="row" justifyContent="flex-end" sx={{ mt: 2 }}>
+                <Button size="small" startIcon={<DeleteOutlineIcon />} onClick={() => deleteQuote(viewQuote._id)}
+                  sx={{ textTransform: "none", color: "#f44336", fontSize: "0.78rem" }}>Supprimer</Button>
+              </Stack>
+            </DialogContent>
+          </>)}
         </Dialog>
 
-        {/* ── Create quote dialog ─────────────────────────────────────────── */}
-        <Dialog
-          open={createOpen}
-          onClose={() => { setCreateOpen(false); setForm(emptyForm()); }}
-          maxWidth="md"
-          fullWidth
-          PaperProps={{ sx: { ...cardSx, borderRadius: 3 } }}
-        >
+        {/* ── PDF Import dialog ───────────────────────────────────────────── */}
+        <Dialog open={importOpen} onClose={() => setImportOpen(false)} maxWidth="md" fullWidth PaperProps={{ sx: { ...cardSx, borderRadius: 3 } }}>
+          {importData && (<>
+            <DialogTitle sx={{ pb: 1 }}>
+              <Stack direction="row" alignItems="center" justifyContent="space-between">
+                <Stack spacing={0.3}>
+                  <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>
+                    PDF importé — {importData.supplierName}
+                  </Typography>
+                  <Typography sx={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.45)" }}>
+                    Coût fournisseur (référence) :&nbsp;
+                    <strong style={{ color: "#f57c00" }}>{fmt(importData.supplierTotal)}</strong>
+                    &nbsp;· Sélectionnez un client et ajustez les prix.
+                  </Typography>
+                </Stack>
+                <IconButton onClick={() => setImportOpen(false)} size="small" sx={{ color: "rgba(255,255,255,0.5)" }}>
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Stack>
+            </DialogTitle>
+            <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
+            <DialogContent sx={{ pt: 2.5 }}>
+              {importError && <Alert severity="error" onClose={() => setImportError("")} sx={{ mb: 2 }}>{importError}</Alert>}
+
+              {/* Client + service row */}
+              <Typography sx={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: "rgba(255,255,255,0.4)", mb: 1 }}>
+                Client
+              </Typography>
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={6}>
+                  <ClientAutocomplete clients={clients} value={importClient} onChange={handleImportClientSelect} />
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel sx={{ color: "rgba(255,255,255,0.5)" }}>Service</InputLabel>
+                    <Select value={importDetails.serviceType} label="Service"
+                      onChange={(e) => setImportDetails((p) => ({ ...p, serviceType: e.target.value }))} sx={darkSelectSx}>
+                      {SERVICE_TYPES.map((t) => <MenuItem key={t} value={t}>{SERVICE_FR[t]}</MenuItem>)}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel sx={{ color: "rgba(255,255,255,0.5)" }}>Langue</InputLabel>
+                    <Select value={importDetails.language} label="Langue"
+                      onChange={(e) => setImportDetails((p) => ({ ...p, language: e.target.value }))} sx={darkSelectSx}>
+                      <MenuItem value="fr">Français</MenuItem>
+                      <MenuItem value="en">English</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
+
+              {/* Parsed items */}
+              <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
+                <Typography sx={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: "rgba(255,255,255,0.4)" }}>
+                  Postes détectés — Prix client (à remplir)
+                </Typography>
+                <Button size="small" startIcon={<AddIcon />} onClick={addImportItem}
+                  sx={{ textTransform: "none", fontSize: "0.78rem", color: "#2196f3" }}>Ajouter</Button>
+              </Stack>
+
+              {importItems.map((item, idx) => (
+                <Stack key={idx} direction="row" spacing={1} alignItems="flex-start" sx={{ mb: 1 }}>
+                  <TextField label="Description" size="small" value={item.description}
+                    onChange={(e) => setImportItem(idx, "description", e.target.value)}
+                    sx={{ ...darkFieldSx, flex: 4 }} />
+                  <TextField label="Qté" size="small" type="number" value={item.quantity}
+                    onChange={(e) => setImportItem(idx, "quantity", e.target.value)}
+                    inputProps={{ min: 0 }} sx={{ ...darkFieldSx, flex: 1 }} />
+                  <TextField
+                    label="Prix client ($)" size="small" type="number" value={item.unitPrice}
+                    onChange={(e) => setImportItem(idx, "unitPrice", e.target.value)}
+                    inputProps={{ min: 0, step: "0.01" }}
+                    sx={{ ...darkFieldSx, flex: 2 }}
+                    helperText={item.supplierCost > 0 ? `Coût fourn. : ${fmt(item.supplierCost)}` : ""}
+                    FormHelperTextProps={{ sx: { color: "#f57c00", fontSize: "0.68rem", mx: 0 } }}
+                  />
+                  <Box sx={{ minWidth: 72, textAlign: "right", pt: 1 }}>
+                    <Typography sx={{ color: "#43a047", fontWeight: 700, fontSize: "0.82rem" }}>
+                      {fmt((parseFloat(item.quantity) || 0) * (parseFloat(item.unitPrice) || 0))}
+                    </Typography>
+                  </Box>
+                  <IconButton size="small" onClick={() => removeImportItem(idx)} sx={{ mt: 0.5, color: "rgba(255,255,255,0.25)", "&:hover": { color: "#f44336" } }}>
+                    <DeleteOutlineIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
+              ))}
+
+              {/* Totals preview */}
+              <Stack alignItems="flex-end" spacing={0.5} sx={{ mt: 2, p: 2, bgcolor: "rgba(255,255,255,0.03)", borderRadius: 2 }}>
+                {[["Sous-total", importTotals.subtotal], ["TPS (5 %)", importTotals.tps], ["TVQ (9,975 %)", importTotals.tvq]].map(([lbl, val]) => (
+                  <Stack key={lbl} direction="row" spacing={4}>
+                    <Typography sx={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.5)", minWidth: 110, textAlign: "right" }}>{lbl}</Typography>
+                    <Typography sx={{ fontSize: "0.82rem", minWidth: 90, textAlign: "right" }}>{fmt(val)}</Typography>
+                  </Stack>
+                ))}
+                <Divider sx={{ width: 220, borderColor: "rgba(255,255,255,0.15)" }} />
+                <Stack direction="row" spacing={4}>
+                  <Typography sx={{ fontWeight: 700, minWidth: 110, textAlign: "right" }}>Total client</Typography>
+                  <Typography sx={{ fontWeight: 800, fontSize: "1.1rem", minWidth: 90, textAlign: "right",
+                    color: importTotals.total > 0 ? "#43a047" : "rgba(255,255,255,0.3)" }}>
+                    {importTotals.total > 0 ? fmt(importTotals.total) : "— à remplir"}
+                  </Typography>
+                </Stack>
+                <Typography sx={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.3)", mt: 0.5 }}>
+                  Coût fournisseur (référence) : {fmt(importData.supplierTotal)}
+                </Typography>
+              </Stack>
+
+              <TextField fullWidth size="small" label="Notes (optionnel)" multiline rows={2} value={importDetails.notes}
+                onChange={(e) => setImportDetails((p) => ({ ...p, notes: e.target.value }))}
+                sx={{ ...darkFieldSx, mt: 2 }} />
+
+              <Alert severity="info" sx={{ mt: 2, bgcolor: "rgba(33,150,243,0.08)", color: "rgba(255,255,255,0.7)", "& .MuiAlert-icon": { color: "#2196f3" } }}>
+                Sera sauvegardé comme <strong>brouillon</strong>. Revenez pour compléter les prix quand vous êtes prêt.
+              </Alert>
+            </DialogContent>
+            <DialogActions sx={{ px: 3, pb: 2.5 }}>
+              <Button onClick={() => setImportOpen(false)} sx={{ textTransform: "none", color: "rgba(255,255,255,0.5)" }}>Annuler</Button>
+              <Button variant="contained" onClick={saveImportAsDraft} disabled={saving}
+                sx={{ bgcolor: "#2196f3", textTransform: "none", fontWeight: 700, borderRadius: 2, "&:hover": { bgcolor: "#1976d2" } }}>
+                {saving ? <CircularProgress size={18} sx={{ color: "#fff" }} /> : "Sauvegarder comme brouillon"}
+              </Button>
+            </DialogActions>
+          </>)}
+        </Dialog>
+
+        {/* ── Manual create dialog ────────────────────────────────────────── */}
+        <Dialog open={createOpen} onClose={() => { setCreateOpen(false); setForm(emptyForm()); }}
+          maxWidth="md" fullWidth PaperProps={{ sx: { ...cardSx, borderRadius: 3 } }}>
           <DialogTitle>
             <Stack direction="row" alignItems="center" justifyContent="space-between">
               <Typography sx={{ fontWeight: 700 }}>Nouvelle soumission</Typography>
@@ -705,18 +876,15 @@ const Quotes = () => {
             </Stack>
           </DialogTitle>
           <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
-
           <DialogContent sx={{ pt: 2.5 }}>
             <Grid container spacing={2}>
-              {/* Customer section */}
               <Grid item xs={12}>
                 <Typography sx={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, color: "rgba(255,255,255,0.4)", mb: 0.5 }}>
                   Informations client
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField fullWidth required size="small" label="Nom du client *" value={form.customerName}
-                  onChange={(e) => setForm((p) => ({ ...p, customerName: e.target.value }))} sx={darkFieldSx} />
+                <ClientAutocomplete clients={clients} value={form.customerName} onChange={handleCreateClientSelect} />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField fullWidth size="small" label="Téléphone" value={form.customerPhone}
@@ -744,8 +912,7 @@ const Quotes = () => {
                   <InputLabel sx={{ color: "rgba(255,255,255,0.5)" }}>Langue</InputLabel>
                   <Select value={form.language} label="Langue"
                     onChange={(e) => setForm((p) => ({ ...p, language: e.target.value }))} sx={darkSelectSx}>
-                    <MenuItem value="fr">Français</MenuItem>
-                    <MenuItem value="en">English</MenuItem>
+                    <MenuItem value="fr">Français</MenuItem><MenuItem value="en">English</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -759,8 +926,6 @@ const Quotes = () => {
                   </Select>
                 </FormControl>
               </Grid>
-
-              {/* Line items */}
               <Grid item xs={12}>
                 <Divider sx={{ borderColor: "rgba(255,255,255,0.08)", mt: 1, mb: 2 }} />
                 <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
@@ -768,29 +933,18 @@ const Quotes = () => {
                     Postes / Travaux
                   </Typography>
                   <Button size="small" startIcon={<AddIcon />} onClick={addItem}
-                    sx={{ textTransform: "none", fontSize: "0.78rem", color: "#2196f3" }}>
-                    Ajouter
-                  </Button>
+                    sx={{ textTransform: "none", fontSize: "0.78rem", color: "#2196f3" }}>Ajouter</Button>
                 </Stack>
                 {form.items.map((item, idx) => (
                   <Stack key={idx} direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                    <TextField
-                      label="Description" size="small" value={item.description}
-                      onChange={(e) => setItem(idx, "description", e.target.value)}
-                      sx={{ ...darkFieldSx, flex: 4 }}
-                    />
-                    <TextField
-                      label="Qté" size="small" type="number" value={item.quantity}
+                    <TextField label="Description" size="small" value={item.description}
+                      onChange={(e) => setItem(idx, "description", e.target.value)} sx={{ ...darkFieldSx, flex: 4 }} />
+                    <TextField label="Qté" size="small" type="number" value={item.quantity}
                       onChange={(e) => setItem(idx, "quantity", e.target.value)}
-                      inputProps={{ min: 0 }}
-                      sx={{ ...darkFieldSx, flex: 1 }}
-                    />
-                    <TextField
-                      label="Prix ($)" size="small" type="number" value={item.unitPrice}
+                      inputProps={{ min: 0 }} sx={{ ...darkFieldSx, flex: 1 }} />
+                    <TextField label="Prix ($)" size="small" type="number" value={item.unitPrice}
                       onChange={(e) => setItem(idx, "unitPrice", e.target.value)}
-                      inputProps={{ min: 0, step: "0.01" }}
-                      sx={{ ...darkFieldSx, flex: 2 }}
-                    />
+                      inputProps={{ min: 0, step: "0.01" }} sx={{ ...darkFieldSx, flex: 2 }} />
                     <Typography sx={{ minWidth: 72, textAlign: "right", color: "#43a047", fontWeight: 700, fontSize: "0.82rem" }}>
                       {fmt((parseFloat(item.quantity) || 0) * (parseFloat(item.unitPrice) || 0))}
                     </Typography>
@@ -801,8 +955,6 @@ const Quotes = () => {
                   </Stack>
                 ))}
               </Grid>
-
-              {/* Live totals preview */}
               <Grid item xs={12}>
                 <Stack alignItems="flex-end" spacing={0.5} sx={{ p: 2, bgcolor: "rgba(255,255,255,0.03)", borderRadius: 2 }}>
                   {[["Sous-total", formTotals.subtotal], ["TPS (5 %)", formTotals.tps], ["TVQ (9,975 %)", formTotals.tvq]].map(([lbl, val]) => (
@@ -814,32 +966,20 @@ const Quotes = () => {
                   <Divider sx={{ width: 220, borderColor: "rgba(255,255,255,0.15)" }} />
                   <Stack direction="row" spacing={4}>
                     <Typography sx={{ fontWeight: 700, minWidth: 110, textAlign: "right" }}>Total</Typography>
-                    <Typography sx={{ fontWeight: 800, fontSize: "1.1rem", color: "#43a047", minWidth: 90, textAlign: "right" }}>
-                      {fmt(formTotals.total)}
-                    </Typography>
+                    <Typography sx={{ fontWeight: 800, fontSize: "1.1rem", color: "#43a047", minWidth: 90, textAlign: "right" }}>{fmt(formTotals.total)}</Typography>
                   </Stack>
                 </Stack>
               </Grid>
-
-              {/* Notes */}
               <Grid item xs={12}>
                 <TextField fullWidth size="small" label="Notes (optionnel)" multiline rows={3} value={form.notes}
                   onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))} sx={darkFieldSx} />
               </Grid>
             </Grid>
           </DialogContent>
-
           <DialogActions sx={{ px: 3, pb: 2.5 }}>
-            <Button onClick={() => { setCreateOpen(false); setForm(emptyForm()); }}
-              sx={{ textTransform: "none", color: "rgba(255,255,255,0.5)" }}>
-              Annuler
-            </Button>
-            <Button
-              variant="contained"
-              onClick={submitQuote}
-              disabled={saving || !form.customerName.trim()}
-              sx={{ bgcolor: "#2196f3", textTransform: "none", fontWeight: 700, borderRadius: 2, "&:hover": { bgcolor: "#1976d2" } }}
-            >
+            <Button onClick={() => { setCreateOpen(false); setForm(emptyForm()); }} sx={{ textTransform: "none", color: "rgba(255,255,255,0.5)" }}>Annuler</Button>
+            <Button variant="contained" onClick={handleManualCreate} disabled={saving || !form.customerName.trim()}
+              sx={{ bgcolor: "#2196f3", textTransform: "none", fontWeight: 700, borderRadius: 2, "&:hover": { bgcolor: "#1976d2" } }}>
               {saving ? <CircularProgress size={18} sx={{ color: "#fff" }} /> : "Créer la soumission"}
             </Button>
           </DialogActions>
