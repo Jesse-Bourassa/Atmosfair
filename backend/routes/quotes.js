@@ -2,7 +2,7 @@ const express  = require("express");
 const router   = express.Router();
 const jwt      = require("jsonwebtoken");
 const multer   = require("multer");
-const pdfParse = require("pdf-parse/lib/pdf-parse.js");
+const pdfParse = require("pdf-parse");
 const Quote    = require("../models/Quote");
 const { parsePDF } = require("../utils/pdfParser");
 
